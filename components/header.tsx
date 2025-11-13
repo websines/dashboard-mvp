@@ -4,7 +4,7 @@ import { useDashboardStore } from '@/store/dashboard-store'
 import { cn } from '@/lib/utils'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
-import { TrendingUp, Play, RefreshCw, Settings as SettingsIcon, ChevronDown, ChevronRight } from 'lucide-react'
+import { TrendingUp, Play, RefreshCw, Settings as SettingsIcon, ChevronDown, ChevronRight, Menu } from 'lucide-react'
 import Link from 'next/link'
 
 interface HeaderProps {
@@ -15,16 +15,29 @@ interface HeaderProps {
 }
 
 export function Header({ title, subtitle, showDeployButton = true, breadcrumbs = [] }: HeaderProps) {
-  const { sidebarCollapsed } = useDashboardStore()
+  const { sidebarCollapsed, toggleSidebar } = useDashboardStore()
 
   return (
     <div
       className={cn(
         'fixed top-0 z-30 flex h-16 items-center justify-between border-b border-border/40 bg-card backdrop-blur supports-[backdrop-filter]:bg-card/95 transition-all duration-300',
-        sidebarCollapsed ? 'left-16 w-[calc(100%-4rem)]' : 'left-64 w-[calc(100%-16rem)]'
+        // Desktop
+        'lg:left-64 lg:w-[calc(100%-16rem)]',
+        sidebarCollapsed && 'lg:left-16 lg:w-[calc(100%-4rem)]',
+        // Mobile
+        'max-lg:left-0 max-lg:w-full'
       )}
     >
-      <div className="flex flex-1 items-center gap-3 px-6">
+      <div className="flex flex-1 items-center gap-2 lg:gap-3 px-4 lg:px-6">
+        {/* Mobile menu button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="lg:hidden h-8 w-8"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
         {breadcrumbs.length > 0 ? (
           <div className="flex items-center gap-2 text-sm">
             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -61,19 +74,19 @@ export function Header({ title, subtitle, showDeployButton = true, breadcrumbs =
         )}
       </div>
 
-      <div className="flex items-center gap-3 px-6">
-        <Badge variant="secondary" className="gap-1.5">
+      <div className="flex items-center gap-2 lg:gap-3 px-4 lg:px-6">
+        <Badge variant="secondary" className="gap-1.5 max-sm:hidden">
           <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
           <span className="text-xs">Live</span>
         </Badge>
 
-        <span className="text-xs text-muted-foreground">updated a min ago</span>
+        <span className="text-xs text-muted-foreground max-md:hidden">updated a min ago</span>
 
         {showDeployButton && (
           <>
-            <Button size="sm" className="gap-1.5 h-8">
+            <Button size="sm" className="gap-1.5 h-8 max-sm:hidden">
               <Play className="h-3 w-3" />
-              Deploy Workflow
+              <span className="max-lg:hidden">Deploy Workflow</span>
               <ChevronDown className="h-3 w-3" />
             </Button>
           </>
@@ -83,7 +96,7 @@ export function Header({ title, subtitle, showDeployButton = true, breadcrumbs =
           <Button variant="ghost" size="icon" className="h-8 w-8">
             <RefreshCw className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon" className="h-8 w-8 max-sm:hidden">
             <SettingsIcon className="h-4 w-4" />
           </Button>
         </div>

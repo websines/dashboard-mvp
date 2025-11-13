@@ -69,12 +69,27 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <div
-      className={cn(
-        'fixed left-0 top-0 z-40 h-screen border-r border-border/40 bg-background transition-all duration-300',
-        sidebarCollapsed ? 'w-16' : 'w-64'
+    <>
+      {/* Mobile backdrop */}
+      {!sidebarCollapsed && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
+          onClick={toggleSidebar}
+        />
       )}
-    >
+
+      {/* Sidebar */}
+      <div
+        className={cn(
+          'fixed left-0 top-0 z-40 h-screen border-r border-border/40 bg-background transition-all duration-300',
+          // Desktop
+          'lg:translate-x-0',
+          sidebarCollapsed ? 'lg:w-16' : 'lg:w-64',
+          // Mobile
+          'max-lg:w-64',
+          sidebarCollapsed ? 'max-lg:-translate-x-full' : 'max-lg:translate-x-0'
+        )}
+      >
       <div className="flex h-full flex-col">
         {/* Logo */}
         <div className={cn("flex h-16 items-center border-b border-border/40 bg-card", sidebarCollapsed ? "justify-center px-2" : "justify-between px-4")}>
@@ -202,5 +217,6 @@ export function Sidebar() {
         )}
       </div>
     </div>
+    </>
   )
 }

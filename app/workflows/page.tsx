@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { CheckCircle2, Circle, Clock, User, GitBranch, Play, ArrowRight, Zap, TrendingUp, Bot, MessageSquare, Database, FileText, Plus } from 'lucide-react'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 
 const workflows = [
   {
@@ -82,7 +83,11 @@ export default function WorkflowsPage() {
     <div
       className={cn(
         'min-h-screen transition-all duration-300',
-        sidebarCollapsed ? 'ml-16' : 'ml-64'
+        // Desktop
+        'lg:ml-64',
+        sidebarCollapsed && 'lg:ml-16',
+        // Mobile
+        'max-lg:ml-0'
       )}
     >
       <Header
@@ -91,13 +96,13 @@ export default function WorkflowsPage() {
         breadcrumbs={[{ label: 'Workflows' }]}
       />
 
-      <main className="mt-16 p-8">
-        <div className="mb-8 flex items-center justify-between">
+      <main className="mt-16 p-4 sm:p-6 lg:p-8">
+        <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-3xl font-bold mb-2"
+              className="text-2xl sm:text-3xl font-bold mb-2"
             >
               Active Workflows
             </motion.h1>
@@ -105,7 +110,7 @@ export default function WorkflowsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-muted-foreground"
+              className="text-sm text-muted-foreground"
             >
               Orchestrated multi-agent automation pipelines
             </motion.p>
@@ -114,8 +119,9 @@ export default function WorkflowsPage() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
+            className="w-full sm:w-auto"
           >
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Create Workflow
             </Button>
@@ -123,7 +129,7 @@ export default function WorkflowsPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 lg:mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -197,10 +203,12 @@ export default function WorkflowsPage() {
                       <CardDescription className="text-sm">{workflow.description}</CardDescription>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Play className="h-3 w-3 mr-1" />
-                        View
-                      </Button>
+                      <Link href={`/workflows/${workflow.id}`}>
+                        <Button variant="outline" size="sm">
+                          <Play className="h-3 w-3 mr-1" />
+                          View
+                        </Button>
+                      </Link>
                       <Button variant="ghost" size="sm">
                         Edit
                       </Button>
@@ -209,25 +217,25 @@ export default function WorkflowsPage() {
                 </CardHeader>
                 <CardContent>
                   {/* Workflow Stats */}
-                  <div className="grid grid-cols-3 gap-4 mb-6 pb-6 border-b border-border/40">
+                  <div className="grid grid-cols-3 gap-3 lg:gap-4 mb-4 lg:mb-6 pb-4 lg:pb-6 border-b border-border/40">
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Executions</p>
-                      <p className="text-lg font-semibold">{workflow.executions.toLocaleString()}</p>
+                      <p className="text-base lg:text-lg font-semibold">{workflow.executions.toLocaleString()}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Success Rate</p>
-                      <p className="text-lg font-semibold text-green-500">{workflow.successRate}%</p>
+                      <p className="text-base lg:text-lg font-semibold text-green-500">{workflow.successRate}%</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Avg Time</p>
-                      <p className="text-lg font-semibold">{workflow.avgTime}</p>
+                      <p className="text-base lg:text-lg font-semibold">{workflow.avgTime}</p>
                     </div>
                   </div>
 
                   {/* Agent Flow Visualization */}
                   <div>
-                    <p className="text-sm font-medium mb-4">Agent Pipeline</p>
-                    <div className="flex items-center gap-3">
+                    <p className="text-sm font-medium mb-3 lg:mb-4">Agent Pipeline</p>
+                    <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
                       {workflow.agents.map((agent, agentIndex) => (
                         <React.Fragment key={agentIndex}>
                           <motion.div
@@ -268,7 +276,7 @@ export default function WorkflowsPage() {
                             </div>
                           </motion.div>
                           {agentIndex < workflow.agents.length - 1 && (
-                            <ArrowRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                            <ArrowRight className="h-5 w-5 text-muted-foreground flex-shrink-0 sm:rotate-0 rotate-90" />
                           )}
                         </React.Fragment>
                       ))}
