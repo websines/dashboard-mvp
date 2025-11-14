@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { CheckCircle2, Circle, Clock, User, GitBranch, Play, ArrowRight, Zap, TrendingUp, Bot, MessageSquare, Database, FileText, Plus } from 'lucide-react'
+import { CheckCircle2, Circle, Clock, User, GitBranch, Play, ArrowRight, Zap, TrendingUp, Bot, MessageSquare, Database, FileText, Plus, Sparkles, Rocket, DollarSign } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
@@ -19,7 +19,15 @@ const workflows = [
     status: 'active',
     executions: 1247,
     successRate: 94,
+    initialAccuracy: 62,
+    currentAccuracy: 94,
+    improvementDays: 23,
     avgTime: '2.3m',
+    costPerRun: '$0.12',
+    version: 'v3.2.1',
+    branch: 'main',
+    hasActionModel: false,
+    evolutionStatus: 'improving',
     agents: [
       { name: 'Data Collector', type: 'input', icon: Database, status: 'active', tasks: 45 },
       { name: 'Verifier', type: 'process', icon: CheckCircle2, status: 'active', tasks: 38 },
@@ -33,7 +41,15 @@ const workflows = [
     status: 'active',
     executions: 3421,
     successRate: 97,
+    initialAccuracy: 58,
+    currentAccuracy: 97,
+    improvementDays: 47,
     avgTime: '0.8m',
+    costPerRun: '$0.004',
+    version: 'v5.1.0',
+    branch: 'main',
+    hasActionModel: true,
+    evolutionStatus: 'distilled',
     agents: [
       { name: 'Ticket Reader', type: 'input', icon: FileText, status: 'active', tasks: 120 },
       { name: 'Classifier', type: 'process', icon: Bot, status: 'active', tasks: 115 },
@@ -48,7 +64,15 @@ const workflows = [
     status: 'active',
     executions: 892,
     successRate: 91,
+    initialAccuracy: 65,
+    currentAccuracy: 91,
+    improvementDays: 31,
     avgTime: '3.1m',
+    costPerRun: '$0.18',
+    version: 'v2.8.3',
+    branch: 'experimental',
+    hasActionModel: false,
+    evolutionStatus: 'testing',
     agents: [
       { name: 'Lead Collector', type: 'input', icon: Database, status: 'active', tasks: 34 },
       { name: 'Enrichment Agent', type: 'process', icon: Zap, status: 'active', tasks: 30 },
@@ -63,7 +87,15 @@ const workflows = [
     status: 'paused',
     executions: 567,
     successRate: 89,
+    initialAccuracy: 71,
+    currentAccuracy: 89,
+    improvementDays: 18,
     avgTime: '5.2m',
+    costPerRun: '$0.25',
+    version: 'v1.9.2',
+    branch: 'main',
+    hasActionModel: false,
+    evolutionStatus: 'paused',
     agents: [
       { name: 'Document Reader', type: 'input', icon: FileText, status: 'idle', tasks: 0 },
       { name: 'Data Extractor', type: 'process', icon: Database, status: 'idle', tasks: 0 },
@@ -135,14 +167,19 @@ export default function WorkflowsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="border border-border/60 bg-gradient-to-br from-card via-card to-card/80">
+            <Card className="border-primary/20 hover:border-primary/40 hover:shadow-[0_0_30px_rgba(103,232,249,0.15)] transition-all duration-300">
               <CardContent className="p-5">
                 <div className="flex items-center gap-3 mb-2">
-                  <Play className="h-5 w-5 text-green-500" />
+                  <div className="h-10 w-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                    <Play className="h-5 w-5 text-green-500" />
+                  </div>
                   <p className="text-sm text-muted-foreground">Active Workflows</p>
                 </div>
                 <p className="text-3xl font-bold">{activeWorkflows}</p>
-                <p className="text-xs text-green-500 mt-1">Running now</p>
+                <p className="text-xs text-green-500 mt-1 flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  Running now
+                </p>
               </CardContent>
             </Card>
           </motion.div>
@@ -151,10 +188,12 @@ export default function WorkflowsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
           >
-            <Card className="border border-border/60 bg-gradient-to-br from-card via-card to-card/80">
+            <Card className="border-primary/20 hover:border-primary/40 hover:shadow-[0_0_30px_rgba(103,232,249,0.15)] transition-all duration-300">
               <CardContent className="p-5">
                 <div className="flex items-center gap-3 mb-2">
-                  <Zap className="h-5 w-5 text-purple-500" />
+                  <div className="h-10 w-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                    <Zap className="h-5 w-5 text-purple-500" />
+                  </div>
                   <p className="text-sm text-muted-foreground">Total Executions</p>
                 </div>
                 <p className="text-3xl font-bold">{totalExecutions.toLocaleString()}</p>
@@ -167,10 +206,12 @@ export default function WorkflowsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="border border-border/60 bg-gradient-to-br from-card via-card to-card/80">
+            <Card className="border-primary/20 hover:border-primary/40 hover:shadow-[0_0_30px_rgba(103,232,249,0.15)] transition-all duration-300">
               <CardContent className="p-5">
                 <div className="flex items-center gap-3 mb-2">
-                  <TrendingUp className="h-5 w-5 text-blue-500" />
+                  <div className="h-10 w-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-blue-500" />
+                  </div>
                   <p className="text-sm text-muted-foreground">Success Rate</p>
                 </div>
                 <p className="text-3xl font-bold">{avgSuccessRate}%</p>
@@ -189,35 +230,92 @@ export default function WorkflowsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 + index * 0.1 }}
             >
-              <Card className="border border-border/60 bg-gradient-to-br from-card via-card to-card/80 hover:border-border/80 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300">
+              <Card className="border-primary/20 hover:border-primary/40 hover:shadow-[0_0_40px_rgba(103,232,249,0.15)] transition-all duration-300 group">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <CardTitle className="text-xl">{workflow.name}</CardTitle>
-                        <Badge variant={workflow.status === 'active' ? 'default' : 'secondary'} className="gap-1.5">
-                          {workflow.status === 'active' && <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />}
-                          {workflow.status}
-                        </Badge>
+                        <div className="flex gap-2 flex-wrap">
+                          <Badge variant={workflow.status === 'active' ? 'default' : 'secondary'} className="gap-1.5">
+                            {workflow.status === 'active' && <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />}
+                            {workflow.status}
+                          </Badge>
+                          {workflow.hasActionModel && (
+                            <Badge className="gap-1.5 bg-gradient-to-r from-purple-500 to-pink-500 border-0">
+                              <Rocket className="h-3 w-3" />
+                              Action Model
+                            </Badge>
+                          )}
+                          {workflow.evolutionStatus === 'improving' && (
+                            <Badge className="gap-1.5 bg-gradient-to-r from-primary to-blue-500 border-0">
+                              <Sparkles className="h-3 w-3" />
+                              Self-Improving
+                            </Badge>
+                          )}
+                          {workflow.evolutionStatus === 'testing' && (
+                            <Badge className="gap-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 border-0">
+                              <GitBranch className="h-3 w-3" />
+                              Testing
+                            </Badge>
+                          )}
+                          <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
+                            {workflow.version} · {workflow.branch}
+                          </Badge>
+                        </div>
                       </div>
                       <CardDescription className="text-sm">{workflow.description}</CardDescription>
                     </div>
                     <div className="flex gap-2">
                       <Link href={`/workflows/${workflow.id}`}>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="border-primary/30 hover:border-primary/60">
                           <Play className="h-3 w-3 mr-1" />
                           View
                         </Button>
                       </Link>
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
+                  {/* Self-Evolution Progress */}
+                  <div className="mb-6 p-4 rounded-xl bg-gradient-to-br from-primary/10 via-purple-500/5 to-transparent border border-primary/20">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                        <p className="text-sm font-semibold text-primary">Self-Evolution Progress</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">in {workflow.improvementDays} days</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-muted-foreground">Initial</span>
+                          <span className="text-xs text-muted-foreground">Current</span>
+                        </div>
+                        <div className="h-2 bg-accent/50 rounded-full overflow-hidden">
+                          <motion.div
+                            className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500"
+                            initial={{ width: `${workflow.initialAccuracy}%` }}
+                            animate={{ width: `${workflow.currentAccuracy}%` }}
+                            transition={{ duration: 1.5, delay: 0.6 + index * 0.1 }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-sm font-bold text-red-400">{workflow.initialAccuracy}%</span>
+                          <div className="flex items-center gap-1 text-green-400">
+                            <TrendingUp className="h-4 w-4" />
+                            <span className="text-sm font-bold">+{workflow.currentAccuracy - workflow.initialAccuracy}%</span>
+                          </div>
+                          <span className="text-sm font-bold text-green-400">{workflow.currentAccuracy}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Workflow Stats */}
-                  <div className="grid grid-cols-3 gap-3 lg:gap-4 mb-4 lg:mb-6 pb-4 lg:pb-6 border-b border-border/40">
+                  <div className="grid grid-cols-4 gap-3 lg:gap-4 mb-4 lg:mb-6 pb-4 lg:pb-6 border-b border-border/40">
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Executions</p>
                       <p className="text-base lg:text-lg font-semibold">{workflow.executions.toLocaleString()}</p>
@@ -229,6 +327,13 @@ export default function WorkflowsPage() {
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Avg Time</p>
                       <p className="text-base lg:text-lg font-semibold">{workflow.avgTime}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                        <DollarSign className="h-3 w-3" />
+                        Cost/Run
+                      </p>
+                      <p className="text-base lg:text-lg font-semibold text-primary">{workflow.costPerRun}</p>
                     </div>
                   </div>
 
@@ -246,9 +351,9 @@ export default function WorkflowsPage() {
                             className="flex-1"
                           >
                             <div className={cn(
-                              "relative rounded-xl p-4 border-2 transition-all duration-200",
+                              "relative rounded-xl p-4 border-2 transition-all duration-200 backdrop-blur-sm",
                               agent.status === 'active'
-                                ? "border-primary/50 bg-primary/5 shadow-lg shadow-primary/20"
+                                ? "border-primary/50 bg-primary/10 shadow-[0_0_20px_rgba(103,232,249,0.2)]"
                                 : "border-border/40 bg-accent/20"
                             )}>
                               {agent.status === 'active' && (

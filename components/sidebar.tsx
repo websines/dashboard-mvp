@@ -26,6 +26,7 @@ const navigationSections = [
     title: 'Overview',
     items: [
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { name: 'Supervisor', href: '/supervisor', icon: BrainCircuit },
       { name: 'Workflows', href: '/workflows', icon: Workflow },
       { name: 'Agents', href: '/agents', icon: Network },
     ]
@@ -34,18 +35,14 @@ const navigationSections = [
     title: 'Creation',
     items: [
       { name: 'Create Agent', href: '/create-agent', icon: Plus },
-      { name: 'Create Frontend', href: '/create-frontend', icon: Layout },
       { name: 'Connect Tools', href: '/connect-tools', icon: Plug },
     ]
   },
   {
     title: 'Training',
     items: [
-      { name: 'Agent Rules', href: '/agent-rules', icon: BrainCircuit },
       { name: 'Scenario Training', href: '/scenario-training', icon: FlaskConical },
       { name: 'Knowledge Base', href: '/knowledge-base', icon: BookOpen },
-      { name: 'Connect Knowledge', href: '/connect-knowledge', icon: Plug },
-      { name: 'Knowledge Hub', href: '/knowledge-hub', icon: BookOpen },
     ]
   },
   {
