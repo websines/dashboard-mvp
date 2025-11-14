@@ -73,7 +73,7 @@ export function Sidebar() {
       {/* Mobile backdrop */}
       {!sidebarCollapsed && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-black/80 backdrop-blur-sm lg:hidden"
           onClick={toggleSidebar}
         />
       )}
@@ -81,7 +81,7 @@ export function Sidebar() {
       {/* Sidebar */}
       <div
         className={cn(
-          'fixed left-0 top-0 z-40 h-screen border-r border-border/40 bg-background transition-all duration-300',
+          'fixed left-0 top-0 z-40 h-screen border-r border-border bg-card transition-all duration-300',
           // Desktop
           'lg:translate-x-0',
           sidebarCollapsed ? 'lg:w-16' : 'lg:w-64',
@@ -92,7 +92,7 @@ export function Sidebar() {
       >
       <div className="flex h-full flex-col">
         {/* Logo */}
-        <div className={cn("flex h-16 items-center border-b border-border/40 bg-card", sidebarCollapsed ? "justify-center px-2" : "justify-between px-4")}>
+        <div className={cn("flex h-14 items-center border-b border-border", sidebarCollapsed ? "justify-center px-2" : "justify-between px-4")}>
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2 w-full">
               <Image
@@ -104,7 +104,7 @@ export function Sidebar() {
                 priority
                 unoptimized
               />
-              <ChevronLeft className="h-5 w-5 text-muted-foreground ml-auto cursor-pointer hover:text-foreground transition-colors" onClick={toggleSidebar} />
+              <ChevronLeft className="h-4 w-4 text-muted-foreground ml-auto cursor-pointer hover:text-foreground transition-colors" onClick={toggleSidebar} />
             </div>
           )}
           {sidebarCollapsed && (
@@ -125,9 +125,9 @@ export function Sidebar() {
         {!sidebarCollapsed && (
           <>
             {/* Search */}
-            <div className="p-3">
-              <div className="flex items-center gap-2 rounded-md bg-accent/50 px-3 py-1.5">
-                <Search className="h-3.5 w-3.5 text-muted-foreground" />
+            <div className="p-3 border-b border-border">
+              <div className="flex items-center gap-2 rounded bg-secondary px-3 py-2">
+                <Search className="h-4 w-4 text-muted-foreground shrink-0" />
                 <input
                   type="text"
                   placeholder="Search..."
@@ -139,15 +139,15 @@ export function Sidebar() {
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <nav className="flex-1 overflow-y-auto px-2 py-2">
           {!sidebarCollapsed ? (
             <div className="space-y-6">
               {navigationSections.map((section) => (
                 <div key={section.title}>
-                  <h3 className="mb-2 px-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <h3 className="mb-2 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     {section.title}
                   </h3>
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     {section.items.map((item) => {
                       const isActive = pathname === item.href
                       return (
@@ -155,10 +155,10 @@ export function Sidebar() {
                           key={item.name}
                           href={item.href}
                           className={cn(
-                            'flex items-center gap-3 rounded-md px-2.5 py-2 text-sm transition-colors',
+                            'flex items-center gap-3 rounded px-3 py-2 text-sm font-medium transition-all',
                             isActive
-                              ? 'bg-accent text-foreground font-medium'
-                              : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                              ? 'bg-primary/10 text-primary border-l-2 border-primary pl-[10px]'
+                              : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground border-l-2 border-transparent'
                           )}
                         >
                           <item.icon className="h-4 w-4 shrink-0" />
@@ -171,7 +171,7 @@ export function Sidebar() {
               ))}
             </div>
           ) : (
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {navigationSections.flatMap(section => section.items).map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -179,14 +179,15 @@ export function Sidebar() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      'flex items-center justify-center rounded-md py-2 transition-colors',
+                      'flex items-center justify-center rounded py-2.5 transition-all relative',
                       isActive
-                        ? 'bg-accent text-foreground'
-                        : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
                     )}
                     title={item.name}
                   >
                     <item.icon className="h-4 w-4" />
+                    {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary rounded-full" />}
                   </Link>
                 )
               })}
@@ -195,23 +196,23 @@ export function Sidebar() {
         </nav>
 
         {sidebarCollapsed && (
-          <div className="border-t border-border/40 p-2">
+          <div className="border-t border-border p-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="w-full h-9 hover:bg-accent"
+              className="w-full h-9 hover:bg-secondary"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         )}
 
         {!sidebarCollapsed && (
-          <div className="border-t border-border/40 p-2">
-            <div className="text-xs text-muted-foreground px-3 py-2">
-              <p className="font-medium">GoNova AI v2.3</p>
-              <p className="mt-0.5">Self-Evolving Platform</p>
+          <div className="border-t border-border p-3">
+            <div className="text-xs text-muted-foreground px-2">
+              <p className="font-semibold text-foreground">GoNova AI v2.3</p>
+              <p className="mt-1">Self-Evolving Platform</p>
             </div>
           </div>
         )}
