@@ -81,7 +81,8 @@ export function Sidebar() {
       {/* Sidebar */}
       <div
         className={cn(
-          'fixed left-0 top-0 z-40 h-screen border-r border-border bg-card transition-all duration-300',
+          'fixed left-0 top-0 z-40 h-screen border-r border-primary/20 bg-card/40 backdrop-blur-xl transition-all duration-300',
+          'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]',
           // Desktop
           'lg:translate-x-0',
           sidebarCollapsed ? 'lg:w-16' : 'lg:w-64',
@@ -92,7 +93,7 @@ export function Sidebar() {
       >
       <div className="flex h-full flex-col">
         {/* Logo */}
-        <div className={cn("flex h-14 items-center border-b border-border", sidebarCollapsed ? "justify-center px-2" : "justify-between px-4")}>
+        <div className={cn("flex h-14 items-center border-b border-primary/20", sidebarCollapsed ? "justify-center px-2" : "justify-between px-4")}>
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2 w-full">
               <Image
@@ -125,8 +126,8 @@ export function Sidebar() {
         {!sidebarCollapsed && (
           <>
             {/* Search */}
-            <div className="p-3 border-b border-border">
-              <div className="flex items-center gap-2 rounded bg-secondary px-3 py-2">
+            <div className="p-3 border-b border-primary/20">
+              <div className="flex items-center gap-2 rounded bg-secondary/50 backdrop-blur-sm border border-primary/10 px-3 py-2">
                 <Search className="h-4 w-4 text-muted-foreground shrink-0" />
                 <input
                   type="text"
@@ -196,7 +197,7 @@ export function Sidebar() {
         </nav>
 
         {sidebarCollapsed && (
-          <div className="border-t border-border p-2">
+          <div className="border-t border-primary/20 p-2">
             <Button
               variant="ghost"
               size="icon"
@@ -209,7 +210,7 @@ export function Sidebar() {
         )}
 
         {!sidebarCollapsed && (
-          <div className="border-t border-border p-3">
+          <div className="border-t border-primary/20 p-3">
             <div className="text-xs text-muted-foreground px-2">
               <p className="font-semibold text-foreground">GoNova AI v2.3</p>
               <p className="mt-1">Self-Evolving Platform</p>

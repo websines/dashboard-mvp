@@ -77,7 +77,7 @@ export default function DashboardPage() {
         >
           {metrics.map((metric, index) => (
             <motion.div key={metric.title} variants={item}>
-              <Card className="border border-border bg-card hover:border-border/80 transition-all duration-200">
+              <Card className="border-primary/20 hover:border-primary/40 hover:shadow-[0_0_30px_rgba(103,232,249,0.15)] transition-all duration-300 group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
                     {metric.title}
@@ -86,7 +86,7 @@ export default function DashboardPage() {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: index * 0.1 + 0.3, type: "spring" }}
-                    className="rounded bg-secondary p-2"
+                    className="rounded-lg bg-primary/10 p-2 border border-primary/20 group-hover:border-primary/40 group-hover:bg-primary/15 transition-all duration-300"
                   >
                     <metric.icon className={cn('h-4 w-4', metric.color)} />
                   </motion.div>
@@ -115,7 +115,7 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="mt-6 border border-border bg-card">
+          <Card className="mt-6 border-primary/20 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(103,232,249,0.1)] transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-xl font-serif font-medium">Workflow Evolution</CardTitle>
             <CardDescription>
@@ -165,7 +165,7 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <Card className="mt-6 border border-border bg-card">
+          <Card className="mt-6 border-primary/20 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(103,232,249,0.1)] transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-xl font-serif font-medium">Self-Evolution Timeline</CardTitle>
             <CardDescription>

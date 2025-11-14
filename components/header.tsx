@@ -20,7 +20,8 @@ export function Header({ title, subtitle, showDeployButton = true, breadcrumbs =
   return (
     <div
       className={cn(
-        'fixed top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-card transition-all duration-300',
+        'fixed top-0 z-30 flex h-14 items-center justify-between border-b border-primary/20 bg-card/40 backdrop-blur-xl transition-all duration-300',
+        'shadow-[0_4px_16px_0_rgba(0,0,0,0.25)]',
         // Desktop
         'lg:left-64 lg:w-[calc(100%-16rem)]',
         sidebarCollapsed && 'lg:left-16 lg:w-[calc(100%-4rem)]',
@@ -91,7 +92,7 @@ export function Header({ title, subtitle, showDeployButton = true, breadcrumbs =
           </>
         )}
 
-        <div className="flex items-center gap-1 ml-2 pl-2 border-l border-border">
+        <div className="flex items-center gap-1 ml-2 pl-2 border-l border-primary/20">
           <Button variant="ghost" size="icon" className="h-9 w-9">
             <RefreshCw className="h-4 w-4" />
           </Button>
