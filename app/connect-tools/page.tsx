@@ -2,67 +2,61 @@
 
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Plug, Search, Database, Mail, Calendar, FileText, Github, Slack, CheckCircle2 } from 'lucide-react'
+import { Plug, Search, Database, Mail, Calendar, FileText, Github, Slack, CheckCircle2, Plus, Filter, ArrowUpRight, Terminal, Code2, Globe, MessageSquare } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const connectedTools = [
-  { name: 'GitHub', icon: Github, status: 'connected', color: 'text-gray-400' },
-  { name: 'Slack', icon: Slack, status: 'connected', color: 'text-purple-500' },
-  { name: 'Google Calendar', icon: Calendar, status: 'connected', color: 'text-blue-500' },
+  { name: 'GitHub', icon: Github, status: 'connected', color: 'text-foreground', lastSync: '2m ago', events: 1240 },
+  { name: 'Slack', icon: Slack, status: 'connected', color: 'text-foreground', lastSync: '5s ago', events: 850 },
+  { name: 'Google Calendar', icon: Calendar, status: 'connected', color: 'text-foreground', lastSync: '1h ago', events: 42 },
 ]
 
 const availableTools = [
   {
     name: 'Web Search',
     description: 'Real-time web search and data retrieval',
-    icon: Search,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
+    icon: Globe,
     category: 'Data',
+    popularity: 'High'
   },
   {
-    name: 'Database',
+    name: 'PostgreSQL',
     description: 'Connect to SQL/NoSQL databases',
     icon: Database,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
     category: 'Data',
+    popularity: 'Medium'
   },
   {
-    name: 'Email',
+    name: 'Gmail / Outlook',
     description: 'Send and receive emails',
     icon: Mail,
-    color: 'text-red-500',
-    bgColor: 'bg-red-500/10',
     category: 'Communication',
+    popularity: 'High'
   },
   {
-    name: 'Calendar',
-    description: 'Schedule and manage events',
-    icon: Calendar,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10',
+    name: 'Notion',
+    description: 'Knowledge base and docs integration',
+    icon: FileText,
     category: 'Productivity',
+    popularity: 'High'
   },
   {
-    name: 'Document Processing',
+    name: 'Document Parser',
     description: 'Parse PDFs, Word docs, and more',
     icon: FileText,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-500/10',
     category: 'Data',
+    popularity: 'Medium'
   },
   {
-    name: 'GitHub API',
-    description: 'Manage repos, issues, and PRs',
-    icon: Github,
-    color: 'text-gray-400',
-    bgColor: 'bg-gray-500/10',
+    name: 'REST API',
+    description: 'Generic REST API connector',
+    icon: Terminal,
     category: 'Development',
+    popularity: 'Low'
   },
 ]
 
@@ -72,128 +66,130 @@ export default function ConnectToolsPage() {
   return (
     <div
       className={cn(
-        'min-h-screen transition-all duration-300',
-        sidebarCollapsed ? 'ml-16' : 'ml-64'
+        'min-h-screen bg-background transition-all duration-300 ease-in-out',
+        'max-lg:ml-0',
+        sidebarCollapsed ? 'lg:ml-[70px]' : 'lg:ml-64'
       )}
     >
       <Header
-        title="Connect Tools"
-        subtitle="Integrations"
-        breadcrumbs={[{ label: 'Creation', href: '/create-agent' }, { label: 'Connect Tools' }]}
+        title="Integration Hub"
+        subtitle="Tool Connectivity"
+        breadcrumbs={[{ label: 'Build', href: '/connect-tools' }, { label: 'Tools' }]}
       />
 
-      <main className="mt-16 p-8">
-        <div className="mb-8">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-3xl font-bold mb-2"
-          >
-            Tool Integrations
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-muted-foreground"
-          >
-            Connect external tools and APIs to extend your agent's capabilities
-          </motion.p>
+      <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
+
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Active Integrations</h1>
+            <p className="text-sm text-muted-foreground font-mono mt-1">
+              {connectedTools.length} tools connected • 99.9% uptime
+            </p>
+          </div>
+          <Button className="rounded-none h-10 px-6">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Integration
+          </Button>
         </div>
 
-        {/* Connected Tools */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-8"
-        >
-          <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                Connected Tools
-              </CardTitle>
-              <CardDescription>
-                {connectedTools.length} tools currently active
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-4">
-                {connectedTools.map((tool, index) => (
-                  <motion.div
-                    key={tool.name}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
-                  >
-                    <div className="flex flex-col items-center gap-2 p-4 rounded-lg border border-border/40 bg-accent/30">
-                      <tool.icon className={cn('h-8 w-8', tool.color)} />
-                      <span className="text-sm font-medium">{tool.name}</span>
-                      <Badge variant="default" className="text-xs">Connected</Badge>
+        {/* Connected Tools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {connectedTools.map((tool) => (
+            <Card key={tool.name} className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-40 group hover:border-foreground/50 transition-colors cursor-pointer">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-secondary/50 rounded-none">
+                    <tool.icon className="w-5 h-5 text-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">{tool.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-xs text-emerald-500 font-mono uppercase tracking-wider">Connected</span>
                     </div>
-                  </motion.div>
-                ))}
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ArrowUpRight className="w-4 h-4" />
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
-        {/* Available Tools */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Available Integrations</h2>
+              <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-border/50">
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-mono">Last Sync</p>
+                  <p className="text-sm font-mono mt-0.5">{tool.lastSync}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-mono">Events (24h)</p>
+                  <p className="text-sm font-mono mt-0.5">{tool.events.toLocaleString()}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Available Tools Section */}
+        <div className="space-y-6 pt-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold tracking-tight">Available Connectors</h2>
+            <div className="flex gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-3 w-3 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search integrations..."
+                  className="h-8 w-64 bg-background border border-border pl-8 pr-3 text-xs focus:outline-none focus:border-foreground transition-colors"
+                />
+              </div>
+              <Button variant="outline" size="sm" className="rounded-none h-8 border-dashed">
+                <Filter className="w-3 h-3 mr-2" /> Filter
+              </Button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {availableTools.map((tool, index) => (
-              <motion.div
-                key={tool.name}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + index * 0.05 }}
-                whileHover={{ y: -5 }}
-              >
-                <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50 hover:border-border hover:shadow-xl hover:shadow-black/20 transition-all duration-300 h-full">
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center', tool.bgColor)}>
-                        <tool.icon className={cn('h-5 w-5', tool.color)} />
-                      </div>
-                      <Badge variant="outline" className="text-xs">{tool.category}</Badge>
+            {availableTools.map((tool) => (
+              <Card key={tool.name} className="border-border bg-card rounded-none p-0 group hover:border-foreground/30 transition-all duration-300">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="p-2 bg-secondary/30 rounded-none group-hover:bg-secondary/60 transition-colors">
+                      <tool.icon className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                     </div>
-                    <CardTitle className="text-lg">{tool.name}</CardTitle>
-                    <CardDescription className="text-sm">{tool.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button className="w-full" variant="outline" size="sm">
-                      Connect
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                    <Badge variant="outline" className="rounded-none text-[10px] uppercase tracking-wider font-mono text-muted-foreground">
+                      {tool.category}
+                    </Badge>
+                  </div>
+
+                  <h3 className="font-bold text-base mb-1">{tool.name}</h3>
+                  <p className="text-xs text-muted-foreground mb-4 line-clamp-2 h-8">
+                    {tool.description}
+                  </p>
+
+                  <Button variant="outline" className="w-full rounded-none h-8 text-xs border-dashed group-hover:border-solid group-hover:bg-secondary/50">
+                    <Plus className="w-3 h-3 mr-2" /> Connect
+                  </Button>
+                </CardContent>
+              </Card>
             ))}
+
+            {/* Custom Tool Card */}
+            <Card className="border-border bg-card rounded-none p-0 group border-dashed hover:border-foreground/30 transition-all duration-300 flex flex-col justify-center items-center text-center min-h-[180px]">
+              <CardContent className="p-5 flex flex-col items-center">
+                <div className="p-3 bg-secondary/30 rounded-full mb-3 group-hover:bg-secondary/60 transition-colors">
+                  <Code2 className="w-6 h-6 text-muted-foreground group-hover:text-foreground" />
+                </div>
+                <h3 className="font-bold text-base mb-1">Custom Integration</h3>
+                <p className="text-xs text-muted-foreground mb-4 max-w-[200px]">
+                  Connect any external API or service using our SDK
+                </p>
+                <Button variant="ghost" size="sm" className="rounded-none h-8 text-xs hover:bg-secondary">
+                  View Documentation <ArrowUpRight className="w-3 h-3 ml-1" />
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mt-8"
-        >
-          <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-            <CardHeader>
-              <CardTitle>Custom Integration</CardTitle>
-              <CardDescription>
-                Don't see your tool? Add a custom integration
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline">
-                <Plug className="h-4 w-4 mr-2" />
-                Add Custom Tool
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
       </main>
     </div>
   )

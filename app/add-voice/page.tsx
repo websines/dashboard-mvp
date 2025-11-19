@@ -2,11 +2,11 @@
 
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Mic, Volume2, Languages, Waves, PlayCircle, Settings, CheckCircle2, Upload, User, Sparkles } from 'lucide-react'
+import { Mic, Volume2, Languages, PlayCircle, Settings, CheckCircle2, Upload, User, Sparkles, AudioWaveform, MoreHorizontal, Plus, Download, Activity } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -20,8 +20,10 @@ const voiceClones = [
     description: 'Clear, authoritative business voice',
     language: 'English (US)',
     quality: 98,
-    duration: '45 seconds',
+    duration: '45s',
     status: 'active',
+    type: 'Cloned',
+    lastUsed: '2m ago'
   },
   {
     id: 2,
@@ -29,8 +31,10 @@ const voiceClones = [
     description: 'Warm, welcoming customer service voice',
     language: 'English (US)',
     quality: 96,
-    duration: '52 seconds',
+    duration: '52s',
     status: 'active',
+    type: 'Cloned',
+    lastUsed: '1h ago'
   },
   {
     id: 3,
@@ -38,8 +42,10 @@ const voiceClones = [
     description: 'Patient, helpful technical voice',
     language: 'English (UK)',
     quality: 94,
-    duration: '38 seconds',
+    duration: '38s',
     status: 'training',
+    type: 'Synthetic',
+    lastUsed: '1d ago'
   },
 ]
 
@@ -49,24 +55,28 @@ const voiceFeatures = [
     description: 'Convert user speech to text for processing',
     icon: Mic,
     enabled: true,
+    latency: '<100ms'
   },
   {
     name: 'Text-to-Speech',
     description: 'Generate natural voice responses',
     icon: Volume2,
     enabled: true,
+    latency: '<200ms'
   },
   {
     name: 'Voice Interruption',
     description: 'Allow users to interrupt agent speech',
     icon: PlayCircle,
     enabled: false,
+    latency: 'N/A'
   },
   {
     name: 'Multilingual Support',
     description: 'Automatic language detection and switching',
     icon: Languages,
     enabled: true,
+    latency: '<50ms'
   },
 ]
 
@@ -80,414 +90,298 @@ export default function AddVoicePage() {
   return (
     <div
       className={cn(
-        'min-h-screen transition-all duration-300',
-        sidebarCollapsed ? 'ml-16' : 'ml-64'
+        'min-h-screen bg-background transition-all duration-300 ease-in-out',
+        'max-lg:ml-0',
+        sidebarCollapsed ? 'lg:ml-[70px]' : 'lg:ml-64'
       )}
     >
       <Header
-        title="Add Voice"
-        subtitle="Voice Capabilities"
-        breadcrumbs={[{ label: 'Features', href: '/add-voice' }, { label: 'Add Voice' }]}
+        title="Voice Engine"
+        subtitle="Audio Processing"
+        breadcrumbs={[{ label: 'Features', href: '/add-voice' }, { label: 'Voice' }]}
       />
 
-      <main className="mt-16 p-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-3xl font-bold mb-2"
-              >
-                Voice Capabilities
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="text-muted-foreground"
-              >
-                GoNova's proprietary ASR and TTS with voice cloning technology
-              </motion.p>
-            </div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Dialog open={cloneModalOpen} onOpenChange={setCloneModalOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Clone New Voice
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[500px]">
-                  <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-purple-500" />
-                      Clone New Voice
-                    </DialogTitle>
-                    <DialogDescription>
-                      Upload a 30-60 second audio sample to create a perfect voice clone
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="voice-name">Voice Name</Label>
-                      <Input
-                        id="voice-name"
-                        placeholder="e.g., Professional Male"
-                        value={voiceName}
-                        onChange={(e) => setVoiceName(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="voice-description">Description</Label>
-                      <Input
-                        id="voice-description"
-                        placeholder="e.g., Clear, authoritative business voice"
-                        value={voiceDescription}
-                        onChange={(e) => setVoiceDescription(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="language">Language</Label>
-                      <select
-                        id="language"
-                        value={selectedLanguage}
-                        onChange={(e) => setSelectedLanguage(e.target.value)}
-                        className="flex h-10 w-full rounded-md border border-border bg-input px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      >
-                        <option value="en-US">English (US)</option>
-                        <option value="en-GB">English (UK)</option>
-                        <option value="es-ES">Spanish (Spain)</option>
-                        <option value="fr-FR">French (France)</option>
-                        <option value="de-DE">German (Germany)</option>
-                        <option value="it-IT">Italian (Italy)</option>
-                        <option value="pt-BR">Portuguese (Brazil)</option>
-                        <option value="ja-JP">Japanese</option>
-                        <option value="ko-KR">Korean</option>
-                        <option value="zh-CN">Chinese (Mandarin)</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="audio-file">Audio Sample</Label>
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center justify-center w-full">
-                          <label htmlFor="audio-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer bg-accent/20 hover:bg-accent/40 transition-colors">
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                              <p className="mb-2 text-sm text-muted-foreground">
-                                <span className="font-semibold">Click to upload</span> or drag and drop
-                              </p>
-                              <p className="text-xs text-muted-foreground">MP3, WAV, or M4A (30-60 seconds)</p>
-                            </div>
-                            <input id="audio-file" type="file" className="hidden" accept="audio/*" />
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-3">
-                    <Button variant="outline" onClick={() => setCloneModalOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={() => {
-                      // Handle voice cloning
-                      setCloneModalOpen(false)
-                    }}>
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Start Cloning
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </motion.div>
-          </div>
+      <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
 
-          {/* Stats */}
-          <div className="grid grid-cols-4 gap-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Mic className="h-5 w-5 text-purple-500" />
-                    <p className="text-sm text-muted-foreground">ASR Accuracy</p>
-                  </div>
-                  <p className="text-3xl font-bold">99.2%</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-            >
-              <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Volume2 className="h-5 w-5 text-blue-500" />
-                    <p className="text-sm text-muted-foreground">TTS Quality</p>
-                  </div>
-                  <p className="text-3xl font-bold">98.5%</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <User className="h-5 w-5 text-green-500" />
-                    <p className="text-sm text-muted-foreground">Voice Clones</p>
-                  </div>
-                  <p className="text-3xl font-bold">{voiceClones.length}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-            >
-              <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Languages className="h-5 w-5 text-orange-500" />
-                    <p className="text-sm text-muted-foreground">Languages</p>
-                  </div>
-                  <p className="text-3xl font-bold">40+</p>
-                </CardContent>
-              </Card>
-            </motion.div>
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Voice Capabilities</h1>
+            <p className="text-sm text-muted-foreground font-mono mt-1">
+              Proprietary ASR/TTS engine • 99.2% Accuracy
+            </p>
           </div>
-        </div>
-
-        {/* Voice Features Config */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-8 max-w-4xl mx-auto"
-        >
-          <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-            <CardHeader>
-              <CardTitle>Voice Features</CardTitle>
-              <CardDescription>Configure voice capabilities for your agent</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {voiceFeatures.map((feature, index) => (
-                  <motion.div
-                    key={feature.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + index * 0.1 }}
+          <Dialog open={cloneModalOpen} onOpenChange={setCloneModalOpen}>
+            <DialogTrigger asChild>
+              <Button className="rounded-none h-10 px-6">
+                <Mic className="w-4 h-4 mr-2" />
+                Clone Voice
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px] rounded-none border-border bg-card">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <AudioWaveform className="h-5 w-5 text-foreground" />
+                  Clone New Voice
+                </DialogTitle>
+                <DialogDescription>
+                  Upload a 30-60 second audio sample to create a perfect voice clone
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="voice-name">Voice Name</Label>
+                  <Input
+                    id="voice-name"
+                    placeholder="e.g., Professional Male"
+                    value={voiceName}
+                    onChange={(e) => setVoiceName(e.target.value)}
+                    className="rounded-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="voice-description">Description</Label>
+                  <Input
+                    id="voice-description"
+                    placeholder="e.g., Clear, authoritative business voice"
+                    value={voiceDescription}
+                    onChange={(e) => setVoiceDescription(e.target.value)}
+                    className="rounded-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="language">Language</Label>
+                  <select
+                    id="language"
+                    value={selectedLanguage}
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                    className="flex h-10 w-full rounded-none border border-border bg-input px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
-                    <div className="flex items-center justify-between p-4 rounded-lg border border-border/40 bg-accent/20">
-                      <div className="flex items-center gap-3">
-                        <feature.icon className="h-5 w-5 text-primary" />
-                        <div>
-                          <h3 className="font-medium">{feature.name}</h3>
-                          <p className="text-sm text-muted-foreground">{feature.description}</p>
+                    <option value="en-US">English (US)</option>
+                    <option value="en-GB">English (UK)</option>
+                    <option value="es-ES">Spanish (Spain)</option>
+                    <option value="fr-FR">French (France)</option>
+                    <option value="de-DE">German (Germany)</option>
+                    <option value="it-IT">Italian (Italy)</option>
+                    <option value="pt-BR">Portuguese (Brazil)</option>
+                    <option value="ja-JP">Japanese</option>
+                    <option value="ko-KR">Korean</option>
+                    <option value="zh-CN">Chinese (Mandarin)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="audio-file">Audio Sample</Label>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-center w-full">
+                      <label htmlFor="audio-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-none cursor-pointer bg-accent/20 hover:bg-accent/40 transition-colors">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                          <p className="mb-2 text-sm text-muted-foreground">
+                            <span className="font-semibold">Click to upload</span> or drag and drop
+                          </p>
+                          <p className="text-xs text-muted-foreground">MP3, WAV, or M4A (30-60 seconds)</p>
                         </div>
-                      </div>
-                      <Badge variant={feature.enabled ? 'default' : 'secondary'}>
-                        {feature.enabled ? 'Enabled' : 'Disabled'}
-                      </Badge>
+                        <input id="audio-file" type="file" className="hidden" accept="audio/*" />
+                      </label>
                     </div>
-                  </motion.div>
-                ))}
+                  </div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Voice Clones */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Your Voice Clones</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {voiceClones.map((clone, index) => (
-              <motion.div
-                key={clone.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + index * 0.1 }}
-                whileHover={{ y: -5 }}
-              >
-                <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50 hover:border-border hover:shadow-xl hover:shadow-black/20 transition-all duration-300 h-full cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="h-12 w-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                        <User className="h-6 w-6 text-purple-500" />
-                      </div>
-                      <Badge variant={clone.status === 'active' ? 'default' : 'secondary'} className="text-xs">
-                        {clone.status}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-lg mb-2">{clone.name}</CardTitle>
-                    <CardDescription className="text-sm">{clone.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 mb-4 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Language:</span>
-                        <span className="font-medium">{clone.language}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Quality:</span>
-                        <span className="font-medium text-green-500">{clone.quality}%</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Sample:</span>
-                        <span className="font-medium">{clone.duration}</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button className="flex-1" variant="outline" size="sm">
-                        <PlayCircle className="h-3 w-3 mr-1" />
-                        Test
-                      </Button>
-                      <Button className="flex-1" size="sm">
-                        Use Voice
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setCloneModalOpen(false)} className="rounded-none">
+                  Cancel
+                </Button>
+                <Button onClick={() => setCloneModalOpen(false)} className="rounded-none">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Start Cloning
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
-        {/* Voice Cloning Process */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mb-8"
-        >
-          <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-purple-500" />
-                Voice Cloning Process
-              </CardTitle>
-              <CardDescription>
-                Clone any voice in minutes with our proprietary technology
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div>
-                  <div className="h-12 w-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-3">
-                    <span className="text-lg font-bold text-purple-500">1</span>
-                  </div>
-                  <h3 className="font-medium mb-2">Upload Sample</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Provide 30-60 seconds of clear audio in any language
-                  </p>
-                </div>
-                <div>
-                  <div className="h-12 w-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-3">
-                    <span className="text-lg font-bold text-purple-500">2</span>
-                  </div>
-                  <h3 className="font-medium mb-2">AI Processing</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Our model analyzes tone, pitch, and speech patterns
-                  </p>
-                </div>
-                <div>
-                  <div className="h-12 w-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-3">
-                    <span className="text-lg font-bold text-purple-500">3</span>
-                  </div>
-                  <h3 className="font-medium mb-2">Ready to Use</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Voice clone ready in 2-5 minutes with 98%+ quality
-                  </p>
-                </div>
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">ASR Accuracy</p>
+                <h3 className="text-2xl font-bold mt-1">99.2%</h3>
               </div>
-            </CardContent>
+              <Mic className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-emerald-500 font-mono flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> High Fidelity
+            </p>
           </Card>
-        </motion.div>
 
-        {/* Technology Features */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
-        >
-          <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5 text-blue-500" />
-                GoNova Voice Technology
-              </CardTitle>
-              <CardDescription>
-                Industry-leading ASR and TTS capabilities
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-medium mb-3 flex items-center gap-2">
-                    <Mic className="h-5 w-5 text-purple-500" />
-                    Automatic Speech Recognition (ASR)
-                  </h3>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>99.2% accuracy across 40+ languages</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>Real-time transcription with &lt;100ms latency</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>Noise cancellation and accent adaptation</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>Speaker diarization (multi-speaker)</span>
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-3 flex items-center gap-2">
-                    <Volume2 className="h-5 w-5 text-blue-500" />
-                    Text-to-Speech (TTS) with Cloning
-                  </h3>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>Human-like voice quality (98.5% MOS score)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>30-second sample for perfect cloning</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>Emotion and prosody control</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
-                      <span>Streaming generation for low latency</span>
-                    </li>
-                  </ul>
-                </div>
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">TTS Latency</p>
+                <h3 className="text-2xl font-bold mt-1">12ms</h3>
               </div>
-            </CardContent>
+              <Activity className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-emerald-500 font-mono">Real-time capable</p>
           </Card>
-        </motion.div>
+
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Voice Clones</p>
+                <h3 className="text-2xl font-bold mt-1">{voiceClones.length}</h3>
+              </div>
+              <User className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">Active models</p>
+          </Card>
+
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Languages</p>
+                <h3 className="text-2xl font-bold mt-1">40+</h3>
+              </div>
+              <Languages className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">Auto-detect enabled</p>
+          </Card>
+        </div>
+
+        {/* Voice Clones Table */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold tracking-tight">Voice Models</h2>
+          </div>
+
+          <Card className="border-border bg-card rounded-none overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-muted/30 border-b border-border text-xs uppercase font-mono text-muted-foreground">
+                  <tr>
+                    <th className="p-4 font-medium w-[300px]">Voice Name</th>
+                    <th className="p-4 font-medium">Language</th>
+                    <th className="p-4 font-medium">Type</th>
+                    <th className="p-4 font-medium">Quality Score</th>
+                    <th className="p-4 font-medium">Status</th>
+                    <th className="p-4 font-medium text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  {voiceClones.map((clone) => (
+                    <tr key={clone.id} className="group hover:bg-muted/20 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-1">
+                            <AudioWaveform className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <span className="font-medium text-foreground block">{clone.name}</span>
+                            <span className="text-xs text-muted-foreground line-clamp-1">{clone.description}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <Badge variant="outline" className="rounded-none text-[10px] uppercase tracking-wider font-mono">
+                          {clone.language}
+                        </Badge>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-xs font-mono text-muted-foreground">{clone.type}</span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500" style={{ width: `${clone.quality}%` }} />
+                          </div>
+                          <span className="text-xs font-mono">{clone.quality}%</span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <div className={cn(
+                            "w-1.5 h-1.5 rounded-full",
+                            clone.status === 'active' ? "bg-emerald-500" : "bg-yellow-500"
+                          )} />
+                          <span className="text-xs capitalize text-muted-foreground">{clone.status}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="sm" className="rounded-none h-8 w-8 p-0">
+                            <PlayCircle className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="rounded-none h-8 w-8 p-0">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="border-border bg-card rounded-none p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Settings className="w-5 h-5 text-foreground" />
+              <h3 className="font-bold text-lg">Engine Configuration</h3>
+            </div>
+            <div className="space-y-4">
+              {voiceFeatures.map((feature) => (
+                <div key={feature.name} className="flex items-center justify-between p-3 border border-border/50 bg-secondary/10 hover:bg-secondary/20 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <feature.icon className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-medium">{feature.name}</p>
+                      <p className="text-xs text-muted-foreground">{feature.description}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant={feature.enabled ? 'default' : 'secondary'} className="rounded-none text-[10px] uppercase tracking-wider mb-1">
+                      {feature.enabled ? 'On' : 'Off'}
+                    </Badge>
+                    <p className="text-[10px] font-mono text-muted-foreground">{feature.latency}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="border-border bg-card rounded-none p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Sparkles className="w-5 h-5 text-foreground" />
+              <h3 className="font-bold text-lg">Cloning Pipeline</h3>
+            </div>
+            <div className="relative pl-4 border-l border-border space-y-8">
+              <div className="relative">
+                <div className="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-foreground" />
+                <h4 className="text-sm font-bold">Upload Sample</h4>
+                <p className="text-xs text-muted-foreground mt-1">Provide 30-60s of clear audio data</p>
+              </div>
+              <div className="relative">
+                <div className="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-muted-foreground" />
+                <h4 className="text-sm font-bold text-muted-foreground">Feature Extraction</h4>
+                <p className="text-xs text-muted-foreground mt-1">Analyze pitch, tone, and prosody</p>
+              </div>
+              <div className="relative">
+                <div className="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-muted-foreground" />
+                <h4 className="text-sm font-bold text-muted-foreground">Model Training</h4>
+                <p className="text-xs text-muted-foreground mt-1">Fine-tune base model (2-5 mins)</p>
+              </div>
+              <div className="relative">
+                <div className="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-muted-foreground" />
+                <h4 className="text-sm font-bold text-muted-foreground">Deployment</h4>
+                <p className="text-xs text-muted-foreground mt-1">Available via API and Dashboard</p>
+              </div>
+            </div>
+          </Card>
+        </div>
       </main>
     </div>
   )

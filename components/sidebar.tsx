@@ -12,18 +12,25 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  Sparkles
+  Plus,
+  BookOpen,
+  Plug,
+  Mic,
+  BrainCircuit,
+  FlaskConical,
+  LogOut,
+  User,
+  Database,
+  Shield
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from './ui/button'
 import Image from 'next/image'
 
-import { Plus, BookOpen, Plug, Mic, BrainCircuit, FlaskConical, Layout } from 'lucide-react'
-
 const navigationSections = [
   {
-    title: 'Overview',
+    title: 'Platform',
     items: [
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
       { name: 'Supervisor', href: '/supervisor', icon: BrainCircuit },
@@ -32,30 +39,26 @@ const navigationSections = [
     ]
   },
   {
-    title: 'Creation',
+    title: 'Build',
     items: [
       { name: 'Create Agent', href: '/create-agent', icon: Plus },
-      { name: 'Connect Tools', href: '/connect-tools', icon: Plug },
+      { name: 'Agent Rules', href: '/agent-rules', icon: Shield },
+      { name: 'Connect Tools', href: '/connect-tools', icon: Database }, // Icon changed from Plug to Database
+      { name: 'Add Voice', href: '/add-voice', icon: Mic }, // Added 'Add Voice'
     ]
   },
   {
-    title: 'Training',
+    title: 'Knowledge',
     items: [
-      { name: 'Scenario Training', href: '/scenario-training', icon: FlaskConical },
+      { name: 'Training', href: '/scenario-training', icon: FlaskConical },
       { name: 'Knowledge Base', href: '/knowledge-base', icon: BookOpen },
-    ]
-  },
-  {
-    title: 'Features',
-    items: [
-      { name: 'Add Voice', href: '/add-voice', icon: Mic },
-      { name: 'Evolution', href: '/evolution', icon: TrendingUp },
-      { name: 'Versions', href: '/versions', icon: GitBranch },
     ]
   },
   {
     title: 'System',
     items: [
+      { name: 'Evolution', href: '/evolution', icon: TrendingUp },
+      { name: 'Versions', href: '/versions', icon: GitBranch },
       { name: 'Settings', href: '/settings', icon: Settings },
     ]
   }
@@ -70,7 +73,7 @@ export function Sidebar() {
       {/* Mobile backdrop */}
       {!sidebarCollapsed && (
         <div
-          className="fixed inset-0 z-30 bg-black/80 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={toggleSidebar}
         />
       )}
@@ -78,144 +81,118 @@ export function Sidebar() {
       {/* Sidebar */}
       <div
         className={cn(
-          'fixed left-0 top-0 z-40 h-screen border-r border-primary/20 bg-card/40 backdrop-blur-xl transition-all duration-300',
-          'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]',
+          'fixed left-0 top-0 z-40 h-screen border-r border-border bg-card transition-all duration-300 ease-in-out',
           // Desktop
           'lg:translate-x-0',
-          sidebarCollapsed ? 'lg:w-16' : 'lg:w-64',
+          sidebarCollapsed ? 'lg:w-[70px]' : 'lg:w-64',
           // Mobile
           'max-lg:w-64',
           sidebarCollapsed ? 'max-lg:-translate-x-full' : 'max-lg:translate-x-0'
         )}
       >
-      <div className="flex h-full flex-col">
-        {/* Logo */}
-        <div className={cn("flex h-14 items-center border-b border-primary/20", sidebarCollapsed ? "justify-center px-2" : "justify-between px-4")}>
-          {!sidebarCollapsed && (
-            <div className="flex items-center gap-2 w-full">
-              <Image
-                src="/logowithtext.png"
-                alt="GoNova AI"
-                width={140}
-                height={32}
-                className="object-contain"
-                priority
-                unoptimized
-              />
-              <ChevronLeft className="h-4 w-4 text-muted-foreground ml-auto cursor-pointer hover:text-foreground transition-colors" onClick={toggleSidebar} />
-            </div>
-          )}
-          {sidebarCollapsed && (
-            <div className="cursor-pointer" onClick={toggleSidebar}>
-              <Image
-                src="/logo-symbol.png"
-                alt="GoNova AI"
-                width={32}
-                height={32}
-                className="object-contain"
-                priority
-                unoptimized
-              />
-            </div>
-          )}
-        </div>
-
-        {!sidebarCollapsed && (
-          <>
-            {/* Search */}
-            <div className="p-3 border-b border-primary/20">
-              <div className="flex items-center gap-2 rounded bg-secondary/50 backdrop-blur-sm border border-primary/10 px-3 py-2">
-                <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+        <div className="flex h-full flex-col">
+          {/* Header/Logo */}
+          <div className={cn(
+            "flex h-14 items-center border-b border-border",
+            sidebarCollapsed ? "justify-center" : "justify-between px-4"
+          )}>
+            {!sidebarCollapsed ? (
+              <div className="flex items-center gap-2 w-full">
+                <Image
+                  src="/logowithtext.png"
+                  alt="GoNova AI"
+                  width={140}
+                  height={32}
+                  className="object-contain"
+                  priority
+                  unoptimized
                 />
               </div>
-            </div>
-          </>
-        )}
+            ) : (
+              <div className="cursor-pointer" onClick={toggleSidebar}>
+                <Image
+                  src="/logo-symbol.png"
+                  alt="GoNova AI"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                  priority
+                  unoptimized
+                />
+              </div>
+            )}
+          </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-2 py-2">
-          {!sidebarCollapsed ? (
-            <div className="space-y-6">
-              {navigationSections.map((section) => (
-                <div key={section.title}>
-                  <h3 className="mb-2 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          {/* Navigation */}
+          <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+            {navigationSections.map((section) => (
+              <div key={section.title}>
+                {!sidebarCollapsed && (
+                  <h3 className="mb-2 px-2 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                     {section.title}
                   </h3>
-                  <div className="space-y-1">
-                    {section.items.map((item) => {
-                      const isActive = pathname === item.href
-                      return (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          className={cn(
-                            'flex items-center gap-3 rounded px-3 py-2 text-sm font-medium transition-all',
-                            isActive
-                              ? 'bg-primary/10 text-primary border-l-2 border-primary pl-[10px]'
-                              : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground border-l-2 border-transparent'
-                          )}
-                        >
-                          <item.icon className="h-4 w-4 shrink-0" />
-                          <span>{item.name}</span>
-                        </Link>
-                      )
-                    })}
-                  </div>
+                )}
+                <div className="space-y-0.5">
+                  {section.items.map((item) => {
+                    const isActive = pathname === item.href
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={cn(
+                          'group flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all duration-200',
+                          'hover:text-foreground',
+                          isActive
+                            ? 'text-foreground bg-secondary/50 border-l-2 border-foreground'
+                            : 'text-muted-foreground border-l-2 border-transparent',
+                          sidebarCollapsed && 'justify-center px-0'
+                        )}
+                        title={sidebarCollapsed ? item.name : undefined}
+                      >
+                        <item.icon className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")} />
+                        {!sidebarCollapsed && <span>{item.name}</span>}
+                      </Link>
+                    )
+                  })}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {navigationSections.flatMap(section => section.items).map((item) => {
-                const isActive = pathname === item.href
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                      'flex items-center justify-center rounded py-2.5 transition-all relative',
-                      isActive
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
-                    )}
-                    title={item.name}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary rounded-full" />}
-                  </Link>
-                )
-              })}
-            </div>
-          )}
-        </nav>
+              </div>
+            ))}
+          </nav>
 
-        {sidebarCollapsed && (
-          <div className="border-t border-primary/20 p-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="w-full h-9 hover:bg-secondary"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+          {/* Footer / User Profile */}
+          <div className="border-t border-border p-3">
+            {!sidebarCollapsed ? (
+              <div className="flex items-center gap-3 rounded-md p-2 hover:bg-muted transition-colors cursor-pointer">
+                <div className="h-8 w-8 rounded-full bg-muted-foreground/20 flex items-center justify-center border border-border">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <p className="truncate text-sm font-medium text-foreground">Admin User</p>
+                  <p className="truncate text-xs text-muted-foreground">admin@gonova.ai</p>
+                </div>
+                <LogOut className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+              </div>
+            ) : (
+              <div className="flex justify-center">
+                <div className="h-8 w-8 rounded-full bg-muted-foreground/20 flex items-center justify-center border border-border cursor-pointer hover:bg-muted">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </div>
+            )}
 
-        {!sidebarCollapsed && (
-          <div className="border-t border-primary/20 p-3">
-            <div className="text-xs text-muted-foreground px-2">
-              <p className="font-semibold text-foreground">GoNova AI v2.3</p>
-              <p className="mt-1">Self-Evolving Platform</p>
+            <div className="mt-2 flex justify-end">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSidebar}
+                className="h-6 w-6 text-muted-foreground hover:text-foreground"
+              >
+                {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              </Button>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
     </>
   )
 }

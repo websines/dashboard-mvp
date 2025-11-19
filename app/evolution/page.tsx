@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -21,20 +21,20 @@ import {
   AlertTriangle,
   Package,
   Activity,
-  FileText
+  FileText,
+  GitCommit,
+  GitPullRequest,
+  Terminal,
+  Code2
 } from 'lucide-react'
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar
 } from 'recharts'
 
 const accuracyData = [
@@ -154,434 +154,361 @@ export default function EvolutionPage() {
   return (
     <div
       className={cn(
-        'min-h-screen transition-all duration-300',
-        'lg:ml-64',
-        sidebarCollapsed && 'lg:ml-16',
-        'max-lg:ml-0'
+        'min-h-screen bg-background transition-all duration-300 ease-in-out',
+        'max-lg:ml-0',
+        sidebarCollapsed ? 'lg:ml-[70px]' : 'lg:ml-64'
       )}
     >
       <Header
-        title="Self-Evolution Engine"
-        subtitle="Autonomous Improvement Pipeline"
-        breadcrumbs={[{ label: 'Evolution' }]}
+        title="Evolution Engine"
+        subtitle="Self-Improvement Pipeline"
+        breadcrumbs={[{ label: 'System', href: '/evolution' }, { label: 'Evolution' }]}
       />
 
-      <main className="mt-16 p-4 sm:p-6 lg:p-8">
-        <div className="mb-6 lg:mb-8">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text"
-          >
-            Evolution Pipeline
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-sm text-muted-foreground"
-          >
-            Continuous self-improvement from 62% to 94% accuracy
-          </motion.p>
+      <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
+
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">System Evolution</h1>
+            <p className="text-sm text-muted-foreground font-mono mt-1">
+              Continuous self-improvement from 62% to 94% accuracy
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="rounded-none h-8 px-3 font-mono text-xs">
+              <Activity className="w-3 h-3 mr-2 text-emerald-500 animate-pulse" />
+              Learning Active
+            </Badge>
+            <Badge variant="outline" className="rounded-none h-8 px-3 font-mono text-xs">
+              v3.2.1
+            </Badge>
+          </div>
         </div>
 
         {/* Key Metrics */}
-        <div className="grid gap-4 md:grid-cols-4 mb-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Accuracy Gain</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-400">+32%</div>
-                <p className="text-xs text-muted-foreground mt-1">62% → 94%</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Error Rate</CardTitle>
-                <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-orange-400">6%</div>
-                <p className="text-xs text-muted-foreground mt-1">Target: &lt; 5% for distillation</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Days Stable</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">23</div>
-                <p className="text-xs text-muted-foreground mt-1">Target: 30 days</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Symbolic Changes</CardTitle>
-                <Sparkles className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">127</div>
-                <p className="text-xs text-muted-foreground mt-1">Autonomous modifications</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Accuracy Improvement Chart */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              Accuracy Improvement Over Time
-            </CardTitle>
-            <CardDescription>Workflow performance trajectory (62% → 94%)</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={accuracyData}>
-                <defs>
-                  <linearGradient id="accuracyGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(142 76% 36%)" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(142 76% 36%)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 15%)" />
-                <XAxis
-                  dataKey="date"
-                  stroke="hsl(0 0% 60%)"
-                  style={{ fontSize: '12px' }}
-                />
-                <YAxis
-                  stroke="hsl(0 0% 60%)"
-                  style={{ fontSize: '12px' }}
-                  domain={[50, 100]}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(0 0% 8%)',
-                    border: '1px solid hsl(0 0% 20%)',
-                    borderRadius: '0.5rem',
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="accuracy"
-                  stroke="hsl(142 76% 36%)"
-                  fill="url(#accuracyGradient)"
-                  strokeWidth={3}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Symbolic Learning Logs */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-primary" />
-              Symbolic Learning Log
-            </CardTitle>
-            <CardDescription>What the Supervisor Agent changed and why</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {symbolicLearningLogs.map((log, index) => (
-                <motion.div
-                  key={log.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="border border-border/40 rounded-lg p-4 bg-card/50"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={cn(
-                        'text-xs',
-                        log.type === 'agent_creation' && 'bg-green-500/10 text-green-400 border-green-500/20',
-                        log.type === 'agent_modification' && 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-                        log.type === 'workflow_optimization' && 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-                        log.type === 'agent_removal' && 'bg-red-500/10 text-red-400 border-red-500/20',
-                        log.type === 'scenario_learning' && 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
-                      )}>
-                        {log.type.replace('_', ' ')}
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">{log.version}</Badge>
-                    </div>
-                    <span className="text-xs text-muted-foreground">{log.timestamp}</span>
-                  </div>
-                  <div className="mb-2">
-                    <div className="font-semibold text-sm mb-1">{log.change}</div>
-                    <div className="text-xs text-muted-foreground mb-2">{log.reason}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-green-400">{log.impact}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Experimental Branches */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <GitBranch className="h-5 w-5 text-primary" />
-              Experimental Branches
-            </CardTitle>
-            <CardDescription>A/B testing workflow variations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {experimentalBranches.map((branch, index) => (
-                <motion.div
-                  key={branch.name}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="border border-border/40 rounded-lg p-4 bg-card/50"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm font-mono">{branch.name}</span>
-                        <Badge variant={branch.status === 'merged' ? 'default' : 'secondary'} className="text-xs">
-                          {branch.status}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground">{branch.description}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-4 gap-3 text-xs">
-                    <div>
-                      <p className="text-muted-foreground mb-0.5">Accuracy</p>
-                      <p className="font-semibold text-green-400">{branch.accuracy}%</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground mb-0.5">Cost/Run</p>
-                      <p className="font-semibold">{branch.costPerRun}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground mb-0.5">Tests</p>
-                      <p className="font-semibold">{branch.testExecutions}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground mb-0.5">Improvement</p>
-                      <p className="font-semibold text-green-400">{branch.improvement}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid gap-6 md:grid-cols-2 mb-8">
-          {/* Distillation Readiness */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5 text-primary" />
-                Distillation Readiness
-              </CardTitle>
-              <CardDescription>Criteria for Action Model creation</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 rounded bg-secondary/30">
-                  <div className="flex items-center gap-2">
-                    {distillationReadiness.errorRate < 5 ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-400" />
-                    ) : (
-                      <AlertTriangle className="h-4 w-4 text-orange-400" />
-                    )}
-                    <span className="text-sm">Error Rate &lt; 5%</span>
-                  </div>
-                  <span className={cn(
-                    'text-sm font-semibold',
-                    distillationReadiness.errorRate < 5 ? 'text-green-400' : 'text-orange-400'
-                  )}>
-                    {distillationReadiness.errorRate}%
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded bg-secondary/30">
-                  <div className="flex items-center gap-2">
-                    {distillationReadiness.daysStable >= 30 ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-400" />
-                    ) : (
-                      <Clock className="h-4 w-4 text-orange-400" />
-                    )}
-                    <span className="text-sm">30+ Days Stable</span>
-                  </div>
-                  <span className={cn(
-                    'text-sm font-semibold',
-                    distillationReadiness.daysStable >= 30 ? 'text-green-400' : 'text-orange-400'
-                  )}>
-                    {distillationReadiness.daysStable} days
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded bg-secondary/30">
-                  <div className="flex items-center gap-2">
-                    {distillationReadiness.executions >= 100 ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-400" />
-                    ) : (
-                      <AlertTriangle className="h-4 w-4 text-orange-400" />
-                    )}
-                    <span className="text-sm">100+ Executions</span>
-                  </div>
-                  <span className="text-sm font-semibold text-green-400">
-                    {distillationReadiness.executions}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded bg-secondary/30">
-                  <div className="flex items-center gap-2">
-                    {distillationReadiness.complianceViolations === 0 ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-400" />
-                    ) : (
-                      <AlertTriangle className="h-4 w-4 text-red-400" />
-                    )}
-                    <span className="text-sm">No Compliance Violations</span>
-                  </div>
-                  <span className="text-sm font-semibold text-green-400">
-                    {distillationReadiness.complianceViolations}
-                  </span>
-                </div>
-
-                <div className="pt-4 border-t border-border/40">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Ready for Distillation?</span>
-                    <Badge variant={distillationReadiness.readyForDistillation ? 'default' : 'secondary'}>
-                      {distillationReadiness.readyForDistillation ? 'Yes' : 'Not Yet'}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Projected ready in: <span className="font-semibold text-foreground">{distillationReadiness.projectedReady}</span>
-                  </p>
-                </div>
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Accuracy Gain</p>
+                <h3 className="text-2xl font-bold mt-1 text-emerald-500">+32%</h3>
               </div>
-            </CardContent>
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">62% → 94%</p>
           </Card>
 
-          {/* Error Rate Reduction */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                Error Rate Reduction
-              </CardTitle>
-              <CardDescription>Path to &lt;5% distillation threshold</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={280}>
-                <AreaChart data={errorRateData}>
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Error Rate</p>
+                <h3 className="text-2xl font-bold mt-1 text-orange-500">6%</h3>
+              </div>
+              <AlertTriangle className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">Target: &lt; 5%</p>
+          </Card>
+
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Days Stable</p>
+                <h3 className="text-2xl font-bold mt-1">23</h3>
+              </div>
+              <Clock className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">Target: 30 days</p>
+          </Card>
+
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Symbolic Changes</p>
+                <h3 className="text-2xl font-bold mt-1">127</h3>
+              </div>
+              <Sparkles className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">Auto-modifications</p>
+          </Card>
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="border-border bg-card rounded-none p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-emerald-500" />
+                  Accuracy Trajectory
+                </h3>
+                <p className="text-xs text-muted-foreground font-mono mt-1">Model performance over time</p>
+              </div>
+            </div>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={accuracyData}>
                   <defs>
-                    <linearGradient id="errorGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(0 84% 60%)" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="hsl(0 84% 60%)" stopOpacity={0} />
+                    <linearGradient id="accuracyGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(150 100% 50%)" stopOpacity={0.2} />
+                      <stop offset="100%" stopColor="hsl(150 100% 50%)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 15%)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 20%)" vertical={false} />
                   <XAxis
                     dataKey="date"
-                    stroke="hsl(0 0% 60%)"
-                    style={{ fontSize: '12px' }}
+                    stroke="hsl(0 0% 40%)"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    dy={10}
                   />
                   <YAxis
-                    stroke="hsl(0 0% 60%)"
-                    style={{ fontSize: '12px' }}
-                    domain={[0, 40]}
+                    stroke="hsl(0 0% 40%)"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    domain={[50, 100]}
+                    dx={-10}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(0 0% 8%)',
+                      backgroundColor: 'hsl(0 0% 10%)',
                       border: '1px solid hsl(0 0% 20%)',
-                      borderRadius: '0.5rem',
+                      borderRadius: '0px',
+                      fontSize: '12px'
                     }}
+                    itemStyle={{ color: 'hsl(0 0% 90%)' }}
                   />
                   <Area
                     type="monotone"
-                    dataKey="errors"
-                    stroke="hsl(0 84% 60%)"
-                    fill="url(#errorGradient)"
-                    strokeWidth={3}
-                  />
-                  {/* Target line at 5% */}
-                  <line
-                    x1="0%"
-                    y1={5}
-                    x2="100%"
-                    y2={5}
-                    stroke="hsl(142 76% 36%)"
-                    strokeDasharray="5 5"
+                    dataKey="accuracy"
+                    stroke="hsl(150 100% 50%)"
+                    fill="url(#accuracyGradient)"
                     strokeWidth={2}
                   />
                 </AreaChart>
               </ResponsiveContainer>
-            </CardContent>
+            </div>
+          </Card>
+
+          <Card className="border-border bg-card rounded-none p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-orange-500" />
+                  Error Rate Reduction
+                </h3>
+                <p className="text-xs text-muted-foreground font-mono mt-1">Path to distillation threshold</p>
+              </div>
+            </div>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={errorRateData}>
+                  <defs>
+                    <linearGradient id="errorGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(10 80% 60%)" stopOpacity={0.2} />
+                      <stop offset="100%" stopColor="hsl(10 80% 60%)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 20%)" vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    stroke="hsl(0 0% 40%)"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    dy={10}
+                  />
+                  <YAxis
+                    stroke="hsl(0 0% 40%)"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    domain={[0, 40]}
+                    dx={-10}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(0 0% 10%)',
+                      border: '1px solid hsl(0 0% 20%)',
+                      borderRadius: '0px',
+                      fontSize: '12px'
+                    }}
+                    itemStyle={{ color: 'hsl(0 0% 90%)' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="errors"
+                    stroke="hsl(10 80% 60%)"
+                    fill="url(#errorGradient)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
         </div>
 
-        {/* All Workflows Improvement */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
-              All Workflows Improvement
-            </CardTitle>
-            <CardDescription>Self-evolution across entire platform</CardDescription>
-          </CardHeader>
-          <CardContent>
+        {/* Symbolic Learning Logs */}
+        <Card className="border-border bg-card rounded-none overflow-hidden">
+          <div className="p-6 border-b border-border">
+            <h3 className="font-bold text-lg flex items-center gap-2">
+              <Brain className="w-5 h-5 text-foreground" />
+              Symbolic Learning Log
+            </h3>
+            <p className="text-xs text-muted-foreground font-mono mt-1">Autonomous supervisor decisions</p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-muted/30 border-b border-border text-xs uppercase font-mono text-muted-foreground">
+                <tr>
+                  <th className="p-4 font-medium w-[200px]">Type</th>
+                  <th className="p-4 font-medium">Change Description</th>
+                  <th className="p-4 font-medium">Reasoning</th>
+                  <th className="p-4 font-medium">Impact</th>
+                  <th className="p-4 font-medium text-right">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                {symbolicLearningLogs.map((log) => (
+                  <tr key={log.id} className="group hover:bg-muted/20 transition-colors">
+                    <td className="p-4">
+                      <Badge variant="outline" className="rounded-none text-[10px] uppercase tracking-wider font-mono">
+                        {log.type.replace('_', ' ')}
+                      </Badge>
+                    </td>
+                    <td className="p-4 font-medium">{log.change}</td>
+                    <td className="p-4 text-muted-foreground text-xs">{log.reason}</td>
+                    <td className="p-4">
+                      <span className="text-xs font-mono text-emerald-500">{log.impact}</span>
+                    </td>
+                    <td className="p-4 text-right text-xs font-mono text-muted-foreground">
+                      {log.timestamp}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Experimental Branches */}
+          <Card className="border-border bg-card rounded-none p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <GitBranch className="w-5 h-5 text-foreground" />
+                  Experimental Branches
+                </h3>
+                <p className="text-xs text-muted-foreground font-mono mt-1">A/B testing variations</p>
+              </div>
+            </div>
             <div className="space-y-4">
-              {workflowImprovements.map((workflow, index) => (
-                <motion.div
-                  key={workflow.workflow}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="p-4 rounded bg-secondary/30"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold">{workflow.workflow}</span>
-                    <span className="text-xs text-muted-foreground">{workflow.days} days</span>
-                  </div>
-                  <div className="flex items-center gap-4 mb-2">
-                    <span className="text-xs text-red-400 font-semibold">{workflow.initial}%</span>
-                    <div className="flex-1 h-2 bg-accent/50 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500"
-                        initial={{ width: `${workflow.initial}%` }}
-                        animate={{ width: `${workflow.current}%` }}
-                        transition={{ duration: 1.5, delay: 0.5 + index * 0.1 }}
-                      />
+              {experimentalBranches.map((branch) => (
+                <div key={branch.name} className="border border-border/50 bg-secondary/10 p-4 hover:border-foreground/30 transition-colors">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <GitCommit className="w-4 h-4 text-muted-foreground" />
+                      <span className="font-mono text-sm font-semibold">{branch.name}</span>
                     </div>
-                    <span className="text-xs text-green-400 font-semibold">{workflow.current}%</span>
+                    <Badge variant={branch.status === 'merged' ? 'default' : 'secondary'} className="rounded-none text-[10px] uppercase tracking-wider">
+                      {branch.status}
+                    </Badge>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Improvement</span>
-                    <span className="text-sm font-bold text-green-400">+{workflow.current - workflow.initial}%</span>
+                  <p className="text-xs text-muted-foreground mb-4">{branch.description}</p>
+                  <div className="grid grid-cols-4 gap-2 text-xs font-mono">
+                    <div>
+                      <span className="text-muted-foreground block">Accuracy</span>
+                      <span className="text-emerald-500">{branch.accuracy}%</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Cost</span>
+                      <span>{branch.costPerRun}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Tests</span>
+                      <span>{branch.testExecutions}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Delta</span>
+                      <span className="text-emerald-500">{branch.improvement}</span>
+                    </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </Card>
+
+          {/* Distillation Readiness */}
+          <Card className="border-border bg-card rounded-none p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <Package className="w-5 h-5 text-foreground" />
+                  Distillation Readiness
+                </h3>
+                <p className="text-xs text-muted-foreground font-mono mt-1">Criteria for Action Model</p>
+              </div>
+              <div className="text-right">
+                <span className="text-xs font-mono text-muted-foreground block">Projected Ready</span>
+                <span className="text-sm font-bold">{distillationReadiness.projectedReady}</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 border border-border/50 bg-secondary/10">
+                <div className="flex items-center gap-3">
+                  {distillationReadiness.errorRate < 5 ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-orange-500" />
+                  )}
+                  <span className="text-sm font-medium">Error Rate &lt; 5%</span>
+                </div>
+                <span className={cn("text-xs font-mono", distillationReadiness.errorRate < 5 ? "text-emerald-500" : "text-orange-500")}>
+                  {distillationReadiness.errorRate}%
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between p-3 border border-border/50 bg-secondary/10">
+                <div className="flex items-center gap-3">
+                  {distillationReadiness.daysStable >= 30 ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  ) : (
+                    <Clock className="w-4 h-4 text-orange-500" />
+                  )}
+                  <span className="text-sm font-medium">30+ Days Stable</span>
+                </div>
+                <span className={cn("text-xs font-mono", distillationReadiness.daysStable >= 30 ? "text-emerald-500" : "text-orange-500")}>
+                  {distillationReadiness.daysStable} days
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between p-3 border border-border/50 bg-secondary/10">
+                <div className="flex items-center gap-3">
+                  {distillationReadiness.executions >= 100 ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-orange-500" />
+                  )}
+                  <span className="text-sm font-medium">100+ Executions</span>
+                </div>
+                <span className="text-xs font-mono text-emerald-500">
+                  {distillationReadiness.executions}
+                </span>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <Button className="w-full rounded-none" disabled={!distillationReadiness.readyForDistillation}>
+                  <Package className="w-4 h-4 mr-2" />
+                  {distillationReadiness.readyForDistillation ? 'Start Distillation' : 'Requirements Not Met'}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
       </main>
     </div>
   )

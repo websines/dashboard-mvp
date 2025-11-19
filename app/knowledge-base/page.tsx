@@ -2,74 +2,57 @@
 
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { BookOpen, Upload, FileText, Link as LinkIcon, Database, Search, Plus, TrendingUp } from 'lucide-react'
+import { BookOpen, Upload, FileText, Link as LinkIcon, Database, Search, Plus, TrendingUp, HardDrive, Network, RefreshCw, Filter, ArrowUpRight, Globe } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const knowledgeSources = [
   {
-    id: 1,
+    id: 'ks-001',
     name: 'Product Documentation',
     type: 'documents',
     icon: FileText,
     items: 245,
     size: '12.3 MB',
-    lastUpdated: '2 hours ago',
+    lastUpdated: '2h ago',
     status: 'synced',
+    vectorCount: '12,450',
   },
   {
-    id: 2,
+    id: 'ks-002',
     name: 'Company Website',
     type: 'website',
-    icon: LinkIcon,
+    icon: Globe,
     items: 89,
     size: '4.2 MB',
-    lastUpdated: '1 day ago',
+    lastUpdated: '1d ago',
     status: 'synced',
+    vectorCount: '4,210',
   },
   {
-    id: 3,
+    id: 'ks-003',
     name: 'FAQ Database',
     type: 'database',
     icon: Database,
     items: 432,
     size: '2.1 MB',
-    lastUpdated: '3 hours ago',
+    lastUpdated: '3h ago',
     status: 'synced',
+    vectorCount: '8,900',
   },
   {
-    id: 4,
+    id: 'ks-004',
     name: 'Support Tickets Archive',
     type: 'database',
     icon: Database,
     items: 1240,
     size: '45.8 MB',
-    lastUpdated: '5 hours ago',
+    lastUpdated: '5h ago',
     status: 'indexing',
-  },
-]
-
-const uploadOptions = [
-  {
-    name: 'Upload Documents',
-    description: 'PDF, DOCX, TXT, and more',
-    icon: Upload,
-    color: 'text-blue-500',
-  },
-  {
-    name: 'Connect Website',
-    description: 'Crawl and index web content',
-    icon: LinkIcon,
-    color: 'text-green-500',
-  },
-  {
-    name: 'Connect Database',
-    description: 'SQL, MongoDB, Elasticsearch',
-    icon: Database,
-    color: 'text-purple-500',
+    vectorCount: '45,120',
   },
 ]
 
@@ -79,194 +62,197 @@ export default function KnowledgeBasePage() {
   return (
     <div
       className={cn(
-        'min-h-screen transition-all duration-300',
-        sidebarCollapsed ? 'ml-16' : 'ml-64'
+        'min-h-screen bg-background transition-all duration-300 ease-in-out',
+        'max-lg:ml-0',
+        sidebarCollapsed ? 'lg:ml-[70px]' : 'lg:ml-64'
       )}
     >
       <Header
         title="Knowledge Base"
-        subtitle="RAG Pipeline"
-        breadcrumbs={[{ label: 'Training', href: '/agent-rules' }, { label: 'Knowledge Base' }]}
+        subtitle="RAG Pipeline Management"
+        breadcrumbs={[{ label: 'Knowledge', href: '/knowledge-base' }, { label: 'Index' }]}
       />
 
-      <main className="mt-16 p-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-3xl font-bold mb-2"
-            >
-              Knowledge Base
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-muted-foreground"
-            >
-              Manage your agent's knowledge sources and retrieval pipeline
-            </motion.p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Source
-            </Button>
-          </motion.div>
-        </div>
+      <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
 
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <BookOpen className="h-5 w-5 text-blue-500" />
-                  <p className="text-sm text-muted-foreground">Total Sources</p>
-                </div>
-                <p className="text-3xl font-bold">{knowledgeSources.length}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-          >
-            <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <FileText className="h-5 w-5 text-green-500" />
-                  <p className="text-sm text-muted-foreground">Documents</p>
-                </div>
-                <p className="text-3xl font-bold">
-                  {knowledgeSources.reduce((sum, s) => sum + s.items, 0)}
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <Database className="h-5 w-5 text-purple-500" />
-                  <p className="text-sm text-muted-foreground">Total Size</p>
-                </div>
-                <p className="text-3xl font-bold">64.4 MB</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-          >
-            <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <TrendingUp className="h-5 w-5 text-orange-500" />
-                  <p className="text-sm text-muted-foreground">Retrieval Acc.</p>
-                </div>
-                <p className="text-3xl font-bold">94%</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Upload Options */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mb-8"
-        >
-          <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-            <CardHeader>
-              <CardTitle>Add Knowledge Source</CardTitle>
-              <CardDescription>Choose how to add content to your knowledge base</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                {uploadOptions.map((option, index) => (
-                  <motion.div
-                    key={option.name}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <div className="p-4 rounded-lg border border-border/40 bg-accent/30 hover:bg-accent/50 transition-colors cursor-pointer">
-                      <option.icon className={cn('h-8 w-8 mb-3', option.color)} />
-                      <h3 className="font-medium mb-1">{option.name}</h3>
-                      <p className="text-xs text-muted-foreground">{option.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Total Vectors</p>
+                <h3 className="text-2xl font-bold mt-1">70,680</h3>
               </div>
-            </CardContent>
+              <Network className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <div className="w-full bg-secondary h-1 mt-4">
+              <div className="bg-foreground h-full w-[75%]" />
+            </div>
           </Card>
-        </motion.div>
 
-        {/* Knowledge Sources */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Active Sources</h2>
-          <div className="space-y-3">
-            {knowledgeSources.map((source, index) => (
-              <motion.div
-                key={source.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 + index * 0.05 }}
-                whileHover={{ x: 5 }}
-              >
-                <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50 hover:border-border hover:shadow-lg hover:shadow-black/10 transition-all duration-300 cursor-pointer">
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className="h-12 w-12 rounded-xl bg-accent/50 flex items-center justify-center">
-                          <source.icon className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold">{source.name}</h3>
-                            <Badge
-                              variant={source.status === 'synced' ? 'default' : 'secondary'}
-                              className="text-xs"
-                            >
-                              {source.status}
-                            </Badge>
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Storage Used</p>
+                <h3 className="text-2xl font-bold mt-1">64.4 MB</h3>
+              </div>
+              <HardDrive className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-emerald-500 font-mono flex items-center gap-1">
+              <ArrowUpRight className="w-3 h-3" /> +2.4 MB today
+            </p>
+          </Card>
+
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Retrieval Latency</p>
+                <h3 className="text-2xl font-bold mt-1">45ms</h3>
+              </div>
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-emerald-500 font-mono">p99 &lt; 100ms</p>
+          </Card>
+
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32 bg-foreground text-background">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Index Status</p>
+                <h3 className="text-2xl font-bold mt-1 text-background">Healthy</h3>
+              </div>
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">Last sync: 2m ago</p>
+          </Card>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* Left: Sources List */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold">Data Sources</h2>
+                <Badge variant="outline" className="rounded-none font-mono text-xs">{knowledgeSources.length}</Badge>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="rounded-none h-8 border-dashed">
+                  <Filter className="w-3 h-3 mr-2" /> Filter
+                </Button>
+                <Button size="sm" className="rounded-none h-8 bg-foreground text-background hover:bg-foreground/90">
+                  <Plus className="w-3 h-3 mr-2" /> Add Source
+                </Button>
+              </div>
+            </div>
+
+            <Card className="border-border bg-card rounded-none overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-muted/30 border-b border-border text-xs uppercase font-mono text-muted-foreground">
+                    <tr>
+                      <th className="p-4 font-medium">Source Name</th>
+                      <th className="p-4 font-medium">Type</th>
+                      <th className="p-4 font-medium">Vectors</th>
+                      <th className="p-4 font-medium">Size</th>
+                      <th className="p-4 font-medium">Status</th>
+                      <th className="p-4 font-medium text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/50">
+                    {knowledgeSources.map((source) => (
+                      <tr key={source.id} className="group hover:bg-muted/20 transition-colors">
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-muted rounded-none">
+                              <source.icon className="w-4 h-4 text-foreground" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground">{source.name}</p>
+                              <p className="text-xs text-muted-foreground font-mono">{source.id}</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span>{source.items} items</span>
-                            <span>•</span>
-                            <span>{source.size}</span>
-                            <span>•</span>
-                            <span>Updated {source.lastUpdated}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm">
-                        <Search className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                        </td>
+                        <td className="p-4 text-muted-foreground capitalize">{source.type}</td>
+                        <td className="p-4 font-mono text-xs">{source.vectorCount}</td>
+                        <td className="p-4 font-mono text-xs text-muted-foreground">{source.size}</td>
+                        <td className="p-4">
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "rounded-none text-[10px] uppercase tracking-wider",
+                              source.status === 'synced'
+                                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                                : "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                            )}
+                          >
+                            {source.status === 'indexing' && <RefreshCw className="w-3 h-3 mr-1 animate-spin" />}
+                            {source.status}
+                          </Badge>
+                        </td>
+                        <td className="p-4 text-right">
+                          <Button variant="ghost" size="sm" className="rounded-none h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ArrowUpRight className="w-4 h-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
           </div>
+
+          {/* Right: Quick Actions / Upload */}
+          <div className="space-y-6">
+            <Card className="border-border bg-card rounded-none p-6">
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <Upload className="w-4 h-4" /> Quick Ingestion
+              </h3>
+              <div className="space-y-3">
+                <Button variant="outline" className="w-full justify-start rounded-none h-12 border-dashed hover:border-foreground hover:bg-muted/50">
+                  <FileText className="w-4 h-4 mr-3 text-muted-foreground" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium">Upload Documents</p>
+                    <p className="text-[10px] text-muted-foreground">PDF, DOCX, TXT</p>
+                  </div>
+                </Button>
+                <Button variant="outline" className="w-full justify-start rounded-none h-12 border-dashed hover:border-foreground hover:bg-muted/50">
+                  <Globe className="w-4 h-4 mr-3 text-muted-foreground" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium">Crawl Website</p>
+                    <p className="text-[10px] text-muted-foreground">Sitemap or URL list</p>
+                  </div>
+                </Button>
+                <Button variant="outline" className="w-full justify-start rounded-none h-12 border-dashed hover:border-foreground hover:bg-muted/50">
+                  <Database className="w-4 h-4 mr-3 text-muted-foreground" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium">Connect Database</p>
+                    <p className="text-[10px] text-muted-foreground">Postgres, Mongo, Snowflake</p>
+                  </div>
+                </Button>
+              </div>
+            </Card>
+
+            <Card className="border-border bg-card rounded-none p-6 bg-muted/10">
+              <h3 className="font-semibold mb-2 text-sm">Embedding Model</h3>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs text-muted-foreground">text-embedding-3-large</span>
+                <Badge variant="secondary" className="rounded-none text-[10px]">Active</Badge>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Dimensions</span>
+                  <span className="font-mono">3072</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Max Tokens</span>
+                  <span className="font-mono">8191</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+
         </div>
       </main>
     </div>

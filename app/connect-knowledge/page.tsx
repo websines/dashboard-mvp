@@ -2,72 +2,80 @@
 
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Link2, Bot, BookOpen, ArrowRight, CheckCircle2, Plus } from 'lucide-react'
+import { Link2, Bot, BookOpen, ArrowRight, CheckCircle2, Plus, Network, Unplug, RefreshCw, Search, Filter } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const agents = [
   {
-    id: 1,
+    id: 'ag-001',
     name: 'Customer Support Agent',
     type: 'Conversational',
     status: 'active',
     connectedKnowledge: 3,
+    lastSync: '2m ago',
   },
   {
-    id: 2,
+    id: 'ag-002',
     name: 'Sales Assistant',
     type: 'Task Automation',
     status: 'active',
     connectedKnowledge: 2,
+    lastSync: '1h ago',
   },
   {
-    id: 3,
+    id: 'ag-003',
     name: 'Technical Support',
     type: 'Knowledge',
-    status: 'active',
+    status: 'idle',
     connectedKnowledge: 5,
+    lastSync: '5m ago',
   },
 ]
 
 const knowledgeSources = [
   {
-    id: 1,
+    id: 'ks-001',
     name: 'Product Documentation',
     type: 'documents',
     items: 245,
     connected: ['Customer Support Agent', 'Technical Support'],
+    vectorSize: '12MB',
   },
   {
-    id: 2,
+    id: 'ks-002',
     name: 'FAQ Database',
     type: 'database',
     items: 432,
     connected: ['Customer Support Agent'],
+    vectorSize: '4MB',
   },
   {
-    id: 3,
+    id: 'ks-003',
     name: 'Company Website',
     type: 'website',
     items: 89,
     connected: ['Sales Assistant'],
+    vectorSize: '8MB',
   },
   {
-    id: 4,
+    id: 'ks-004',
     name: 'Support Tickets Archive',
     type: 'database',
     items: 1240,
     connected: ['Technical Support'],
+    vectorSize: '45MB',
   },
   {
-    id: 5,
+    id: 'ks-005',
     name: 'Product Catalog',
     type: 'database',
     items: 156,
     connected: ['Sales Assistant'],
+    vectorSize: '2MB',
   },
 ]
 
@@ -77,182 +85,166 @@ export default function ConnectKnowledgePage() {
   return (
     <div
       className={cn(
-        'min-h-screen transition-all duration-300',
-        sidebarCollapsed ? 'ml-16' : 'ml-64'
+        'min-h-screen bg-background transition-all duration-300 ease-in-out',
+        'max-lg:ml-0',
+        sidebarCollapsed ? 'lg:ml-[70px]' : 'lg:ml-64'
       )}
     >
       <Header
-        title="Connect Knowledge to Agent"
-        subtitle="Link Resources"
-        breadcrumbs={[{ label: 'Training', href: '/agent-rules' }, { label: 'Connect Knowledge' }]}
+        title="Knowledge Graph"
+        subtitle="Agent-Knowledge Binding"
+        breadcrumbs={[{ label: 'Knowledge', href: '/knowledge-base' }, { label: 'Connect' }]}
       />
 
-      <main className="mt-16 p-8">
-        <div className="mb-8">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-3xl font-bold mb-2"
-          >
-            Connect Knowledge to Agents
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-muted-foreground"
-          >
-            Link knowledge sources to specific agents for enhanced RAG performance
-          </motion.p>
+      <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Active Bindings</p>
+                <h3 className="text-2xl font-bold mt-1">10</h3>
+              </div>
+              <Network className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <div className="w-full bg-secondary h-1 mt-4">
+              <div className="bg-foreground h-full w-[80%]" />
+            </div>
+          </Card>
+
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Orphaned Sources</p>
+                <h3 className="text-2xl font-bold mt-1">0</h3>
+              </div>
+              <Unplug className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-emerald-500 font-mono flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> All sources connected
+            </p>
+          </Card>
+
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Sync Status</p>
+                <h3 className="text-2xl font-bold mt-1">Healthy</h3>
+              </div>
+              <RefreshCw className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">Last global sync: 2m ago</p>
+          </Card>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <Bot className="h-5 w-5 text-blue-500" />
-                  <p className="text-sm text-muted-foreground">Active Agents</p>
-                </div>
-                <p className="text-3xl font-bold">{agents.length}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-          >
-            <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <BookOpen className="h-5 w-5 text-green-500" />
-                  <p className="text-sm text-muted-foreground">Knowledge Sources</p>
-                </div>
-                <p className="text-3xl font-bold">{knowledgeSources.length}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <Link2 className="h-5 w-5 text-purple-500" />
-                  <p className="text-sm text-muted-foreground">Active Connections</p>
-                </div>
-                <p className="text-3xl font-bold">10</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+        {/* Matrix View */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-        {/* Agents Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Your Agents</h2>
-            <Button variant="outline" size="sm">
-              <Plus className="h-4 w-4 mr-1" />
-              New Connection
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {agents.map((agent, index) => (
-              <motion.div
-                key={agent.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + index * 0.1 }}
-                whileHover={{ y: -5 }}
-              >
-                <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50 hover:border-border hover:shadow-xl hover:shadow-black/20 transition-all duration-300 cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                        <Bot className="h-5 w-5 text-blue-500" />
+          {/* Left: Agents List */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Target Agents</h2>
+              <Button variant="outline" size="sm" className="rounded-none h-8 border-dashed">
+                <Plus className="w-3 h-3 mr-2" /> New Agent
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              {agents.map((agent) => (
+                <Card key={agent.id} className="border-border bg-card rounded-none p-4 hover:bg-muted/20 transition-colors cursor-pointer group relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-transparent group-hover:bg-foreground transition-colors" />
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-none">
+                        <Bot className="w-4 h-4 text-foreground" />
                       </div>
-                      <Badge variant={agent.status === 'active' ? 'default' : 'secondary'} className="text-xs">
-                        {agent.status}
-                      </Badge>
+                      <div>
+                        <h3 className="font-medium text-sm">{agent.name}</h3>
+                        <p className="text-xs text-muted-foreground font-mono">{agent.id}</p>
+                      </div>
                     </div>
-                    <CardTitle className="text-lg">{agent.name}</CardTitle>
-                    <CardDescription className="text-xs">{agent.type}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between text-sm mb-3">
-                      <span className="text-muted-foreground">Connected sources</span>
-                      <span className="font-semibold text-green-500">{agent.connectedKnowledge}</span>
-                    </div>
-                    <Button className="w-full" size="sm" variant="outline">
-                      Manage Connections
-                      <ArrowRight className="h-3 w-3 ml-1" />
-                    </Button>
-                  </CardContent>
+                    <Badge variant="outline" className="rounded-none text-[10px] uppercase tracking-wider">
+                      {agent.status}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mt-4 pl-11">
+                    <span>{agent.type}</span>
+                    <span className="font-mono">{agent.connectedKnowledge} sources</span>
+                  </div>
                 </Card>
-              </motion.div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Knowledge Sources Section */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Available Knowledge Sources</h2>
-          <div className="space-y-3">
-            {knowledgeSources.map((source, index) => (
-              <motion.div
-                key={source.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 + index * 0.05 }}
-                whileHover={{ x: 5 }}
-              >
-                <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50 hover:border-border hover:shadow-lg hover:shadow-black/10 transition-all duration-300 cursor-pointer">
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className="h-12 w-12 rounded-xl bg-green-500/10 flex items-center justify-center">
-                          <BookOpen className="h-6 w-6 text-green-500" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold">{source.name}</h3>
-                            <Badge variant="outline" className="text-xs">{source.type}</Badge>
+          {/* Right: Knowledge Sources & Connections */}
+          <div className="lg:col-span-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Knowledge Matrix</h2>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" className="rounded-none h-8">
+                  <Filter className="w-3 h-3 mr-2" /> Filter
+                </Button>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-3 w-3 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Search sources..."
+                    className="h-8 w-64 bg-background border border-border pl-8 pr-3 text-xs focus:outline-none focus:border-foreground transition-colors"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Card className="border-border bg-card rounded-none overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-muted/30 border-b border-border text-xs uppercase font-mono text-muted-foreground">
+                    <tr>
+                      <th className="p-4 font-medium">Source Name</th>
+                      <th className="p-4 font-medium">Type</th>
+                      <th className="p-4 font-medium">Vectors</th>
+                      <th className="p-4 font-medium">Connected Agents</th>
+                      <th className="p-4 font-medium text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/50">
+                    {knowledgeSources.map((source) => (
+                      <tr key={source.id} className="group hover:bg-muted/20 transition-colors">
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <BookOpen className="w-4 h-4 text-muted-foreground" />
+                            <span className="font-medium text-foreground">{source.name}</span>
                           </div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs text-muted-foreground">{source.items} items</span>
-                            <span className="text-xs text-muted-foreground">•</span>
-                            <span className="text-xs text-muted-foreground">
-                              Connected to {source.connected.length} agent{source.connected.length !== 1 ? 's' : ''}
-                            </span>
-                          </div>
-                          <div className="flex flex-wrap gap-1">
-                            {source.connected.map((agentName) => (
-                              <Badge key={agentName} variant="secondary" className="text-xs">
-                                <CheckCircle2 className="h-2.5 w-2.5 mr-1" />
-                                {agentName}
+                        </td>
+                        <td className="p-4 text-muted-foreground capitalize text-xs">{source.type}</td>
+                        <td className="p-4 font-mono text-xs text-muted-foreground">{source.vectorSize}</td>
+                        <td className="p-4">
+                          <div className="flex flex-wrap gap-2">
+                            {source.connected.map((agent) => (
+                              <Badge key={agent} variant="secondary" className="rounded-none text-[10px] bg-muted text-muted-foreground border-border">
+                                <Link2 className="w-3 h-3 mr-1" />
+                                {agent}
                               </Badge>
                             ))}
+                            <Button variant="ghost" size="sm" className="h-5 w-5 p-0 rounded-none border border-dashed border-muted-foreground/50 text-muted-foreground hover:text-foreground hover:border-foreground">
+                              <Plus className="w-3 h-3" />
+                            </Button>
                           </div>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm">
-                        <Link2 className="h-4 w-4 mr-1" />
-                        Connect
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                        </td>
+                        <td className="p-4 text-right">
+                          <Button variant="ghost" size="sm" className="rounded-none h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Unplug className="w-4 h-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
           </div>
+
         </div>
       </main>
     </div>

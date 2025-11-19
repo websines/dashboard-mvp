@@ -2,45 +2,45 @@
 
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Bot, Sparkles, Zap, Brain, Target, MessageSquare, Settings } from 'lucide-react'
+import { Bot, Sparkles, Zap, Brain, Target, MessageSquare, Settings, Terminal, Code2, Database, ArrowRight, Cpu } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const agentTypes = [
   {
-    name: 'Conversational Agent',
-    description: 'Natural language interactions with users',
+    id: 'conversational',
+    name: 'Conversational Interface',
+    description: 'Natural language processing unit optimized for human-computer interaction.',
     icon: MessageSquare,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
-    features: ['NLP Processing', 'Context Memory', 'Multi-turn Dialog'],
+    specs: ['LLM Integration', 'Context Window: 128k', 'Sentiment Analysis'],
+    complexity: 'Medium',
   },
   {
-    name: 'Task Automation Agent',
-    description: 'Automate workflows and business processes',
+    id: 'automation',
+    name: 'Process Automator',
+    description: 'High-throughput task execution engine for business logic automation.',
     icon: Zap,
-    color: 'text-yellow-500',
-    bgColor: 'bg-yellow-500/10',
-    features: ['API Integration', 'Task Scheduling', 'Error Handling'],
+    specs: ['API Connectors', 'Parallel Execution', 'Error Recovery'],
+    complexity: 'Low',
   },
   {
-    name: 'Knowledge Agent',
-    description: 'Search and retrieve information intelligently',
-    icon: Brain,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10',
-    features: ['RAG Pipeline', 'Semantic Search', 'Citation Tracking'],
+    id: 'knowledge',
+    name: 'Knowledge Engine',
+    description: 'Semantic search and retrieval system with RAG pipeline capabilities.',
+    icon: Database,
+    specs: ['Vector Database', 'Semantic Indexing', 'Source Citation'],
+    complexity: 'High',
   },
   {
-    name: 'Custom Agent',
-    description: 'Build from scratch with custom capabilities',
-    icon: Settings,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
-    features: ['Full Customization', 'Custom Tools', 'Advanced Config'],
+    id: 'custom',
+    name: 'Custom Architecture',
+    description: 'Blank slate for specialized agentic workflows and proprietary logic.',
+    icon: Code2,
+    specs: ['Full Control', 'Custom Runtime', 'External Libs'],
+    complexity: 'Advanced',
   },
 ]
 
@@ -50,123 +50,123 @@ export default function CreateAgentPage() {
   return (
     <div
       className={cn(
-        'min-h-screen transition-all duration-300',
-        sidebarCollapsed ? 'ml-16' : 'ml-64'
+        'min-h-screen bg-background transition-all duration-300 ease-in-out',
+        'max-lg:ml-0',
+        sidebarCollapsed ? 'lg:ml-[70px]' : 'lg:ml-64'
       )}
     >
       <Header
-        title="Create Agent"
-        subtitle="New Agent"
-        breadcrumbs={[{ label: 'Creation', href: '/create-agent' }, { label: 'Create Agent' }]}
+        title="Deploy Agent"
+        subtitle="System Configuration"
+        breadcrumbs={[{ label: 'Agents', href: '/agents' }, { label: 'Deploy New' }]}
       />
 
-      <main className="mt-16 p-8">
-        <div className="mb-8 text-center max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex justify-center mb-4"
-          >
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Sparkles className="h-8 w-8 text-white" />
-            </div>
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-3xl font-bold mb-3"
-          >
-            Create Your AI Agent
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-muted-foreground"
-          >
-            Choose an agent type to get started. Each agent is automatically optimized and evolves over time.
-          </motion.p>
-        </div>
+      <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-          {agentTypes.map((type, index) => (
-            <motion.div
-              key={type.name}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + index * 0.1 }}
-              whileHover={{ y: -5 }}
-            >
-              <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50 hover:border-border hover:shadow-xl hover:shadow-black/20 transition-all duration-300 h-full cursor-pointer">
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={cn('h-12 w-12 rounded-xl flex items-center justify-center', type.bgColor)}>
-                      <type.icon className={cn('h-6 w-6', type.color)} />
-                    </div>
-                    <Badge variant="outline" className="text-xs">Popular</Badge>
-                  </div>
-                  <CardTitle className="text-xl mb-2">{type.name}</CardTitle>
-                  <CardDescription>{type.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 mb-4">
-                    {type.features.map((feature) => (
-                      <div key={feature} className="flex items-center gap-2 text-sm">
-                        <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                        <span className="text-muted-foreground">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <Button className="w-full">
-                    Create {type.name.split(' ')[0]} Agent
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="mt-8 max-w-5xl mx-auto"
-        >
-          <Card className="border border-border/60 bg-gradient-to-br from-card to-card/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-purple-500" />
-                What happens next?
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div>
-                  <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center mb-3">
-                    <span className="text-sm font-bold text-purple-500">1</span>
-                  </div>
-                  <h3 className="font-medium mb-1">Configure</h3>
-                  <p className="text-sm text-muted-foreground">Set up your agent's capabilities, tools, and knowledge sources</p>
-                </div>
-                <div>
-                  <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center mb-3">
-                    <span className="text-sm font-bold text-purple-500">2</span>
-                  </div>
-                  <h3 className="font-medium mb-1">Train</h3>
-                  <p className="text-sm text-muted-foreground">Provide scenarios and rules for optimal performance</p>
-                </div>
-                <div>
-                  <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center mb-3">
-                    <span className="text-sm font-bold text-purple-500">3</span>
-                  </div>
-                  <h3 className="font-medium mb-1">Deploy</h3>
-                  <p className="text-sm text-muted-foreground">Launch your agent and watch it evolve automatically</p>
-                </div>
+          {/* Left Column: Selection */}
+          <div className="lg:col-span-8 space-y-6">
+            <div className="flex items-center justify-between border-b border-border pb-4">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">Select Architecture</h1>
+                <p className="text-muted-foreground font-mono text-xs mt-1">CHOOSE BASE CONFIGURATION FOR NEW INSTANCE</p>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <Badge variant="outline" className="rounded-none font-mono">v2.4.0-stable</Badge>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {agentTypes.map((type, index) => (
+                <motion.div
+                  key={type.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="group relative overflow-hidden border-border bg-card rounded-none hover:border-foreground/50 transition-colors cursor-pointer h-full">
+                    <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ArrowRight className="w-5 h-5 text-foreground" />
+                    </div>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-muted rounded-none">
+                          <type.icon className="w-5 h-5 text-foreground" />
+                        </div>
+                        <Badge variant="secondary" className="rounded-none font-mono text-[10px] uppercase tracking-wider">
+                          {type.complexity} Complexity
+                        </Badge>
+                      </div>
+                      <CardTitle className="text-lg font-bold">{type.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                        {type.description}
+                      </p>
+                      <div className="space-y-1">
+                        {type.specs.map((spec) => (
+                          <div key={spec} className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
+                            <div className="w-1 h-1 bg-foreground/50" />
+                            {spec}
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-foreground scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Column: Info / Preview */}
+          <div className="lg:col-span-4 space-y-6">
+            <Card className="border-border bg-card rounded-none sticky top-20">
+              <CardHeader className="border-b border-border bg-muted/20 pb-4">
+                <div className="flex items-center gap-2">
+                  <Terminal className="w-4 h-4" />
+                  <CardTitle className="text-sm font-mono uppercase tracking-wider">Deployment Sequence</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-6">
+                <div className="relative pl-4 border-l border-border space-y-6">
+                  <div className="relative">
+                    <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-foreground border-2 border-background rounded-full" />
+                    <h3 className="text-sm font-bold">1. Architecture Selection</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Choose the foundational model and capabilities.</p>
+                  </div>
+                  <div className="relative opacity-50">
+                    <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-muted-foreground border-2 border-background rounded-full" />
+                    <h3 className="text-sm font-bold">2. Configuration</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Define parameters, tools, and knowledge base access.</p>
+                  </div>
+                  <div className="relative opacity-50">
+                    <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-muted-foreground border-2 border-background rounded-full" />
+                    <h3 className="text-sm font-bold">3. Training & Validation</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Run initial scenarios and validate output quality.</p>
+                  </div>
+                  <div className="relative opacity-50">
+                    <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-muted-foreground border-2 border-background rounded-full" />
+                    <h3 className="text-sm font-bold">4. Deployment</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Provision resources and activate agent endpoint.</p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-border">
+                  <div className="flex items-center gap-3 p-3 bg-muted/30 border border-border">
+                    <Cpu className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs font-bold">System Resources</p>
+                      <p className="text-[10px] text-muted-foreground">Available for new allocation</p>
+                    </div>
+                    <div className="ml-auto text-right">
+                      <p className="text-xs font-mono text-emerald-500">98%</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+        </div>
       </main>
     </div>
   )

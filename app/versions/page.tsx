@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -22,7 +22,11 @@ import {
   Brain,
   AlertTriangle,
   CheckCircle2,
-  ChevronRight
+  ChevronRight,
+  History,
+  ArrowUpRight,
+  Terminal,
+  Code2
 } from 'lucide-react'
 
 interface Version {
@@ -256,10 +260,10 @@ const versionHistory: Version[] = [
 ]
 
 const triggerColors = {
-  supervisor_autonomous: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-  user_feedback: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  scenario_learning: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  performance_optimization: 'bg-green-500/10 text-green-400 border-green-500/20'
+  supervisor_autonomous: 'text-cyan-400 border-cyan-500/20',
+  user_feedback: 'text-blue-400 border-blue-500/20',
+  scenario_learning: 'text-purple-400 border-purple-500/20',
+  performance_optimization: 'text-emerald-400 border-emerald-500/20'
 }
 
 const triggerIcons = {
@@ -279,309 +283,263 @@ export default function VersionsPage() {
   return (
     <div
       className={cn(
-        'min-h-screen transition-all duration-300',
-        'lg:ml-64',
-        sidebarCollapsed && 'lg:ml-16',
-        'max-lg:ml-0'
+        'min-h-screen bg-background transition-all duration-300 ease-in-out',
+        'max-lg:ml-0',
+        sidebarCollapsed ? 'lg:ml-[70px]' : 'lg:ml-64'
       )}
     >
       <Header
         title="Version Control"
         subtitle="Git-Style Autonomous Versioning"
-        breadcrumbs={[{ label: 'Versions' }]}
+        breadcrumbs={[{ label: 'System', href: '/evolution' }, { label: 'Versions' }]}
       />
 
-      <main className="mt-16 p-4 sm:p-6 lg:p-8">
-        <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text"
-            >
-              Workflow Versions
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-sm text-muted-foreground"
-            >
-              Automatic version creation by Supervisor Agent
-            </motion.p>
-          </div>
+      <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center gap-2"
-          >
-            <Button variant="outline" size="sm" className="gap-2">
-              <GitBranch className="h-4 w-4" />
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Workflow Versions</h1>
+            <p className="text-sm text-muted-foreground font-mono mt-1">
+              Automatic version creation by Supervisor Agent
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="rounded-none h-8 gap-2 font-mono text-xs">
+              <GitBranch className="w-3 h-3" />
               main
             </Button>
             {experimentalBranches.length > 0 && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="rounded-none h-8 px-3 font-mono text-xs gap-2">
+                <GitBranch className="w-3 h-3" />
                 {experimentalBranches.length} experimental
               </Badge>
             )}
-          </motion.div>
+          </div>
         </div>
 
         {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-4 mb-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Total Versions</CardTitle>
-                <Tag className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{versionHistory.length}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Auto-created in 31 days
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Total Versions</p>
+                <h3 className="text-2xl font-bold mt-1">{versionHistory.length}</h3>
+              </div>
+              <History className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">Auto-created in 31 days</p>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Current Version</CardTitle>
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{mainBranchVersions[0].version}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {mainBranchVersions[0].accuracy}% accuracy
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Current Version</p>
+                <h3 className="text-2xl font-bold mt-1">{mainBranchVersions[0].version}</h3>
+              </div>
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">{mainBranchVersions[0].accuracy}% accuracy</p>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Total Improvement</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-400">+{totalImprovement}%</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Since v1.0.0
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Total Improvement</p>
+                <h3 className="text-2xl font-bold mt-1 text-emerald-500">+{totalImprovement}%</h3>
+              </div>
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">Since v1.0.0</p>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Autonomous Changes</CardTitle>
-                <Brain className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{versionHistory.filter(v => v.author === 'Supervisor Agent').length}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  By Supervisor Agent
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Autonomous Changes</p>
+                <h3 className="text-2xl font-bold mt-1">{versionHistory.filter(v => v.author === 'Supervisor Agent').length}</h3>
+              </div>
+              <Brain className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">By Supervisor Agent</p>
+          </Card>
         </div>
 
         {/* Experimental Branches */}
         {experimentalBranches.length > 0 && (
-          <Card className="mb-8 border-cyan-500/30 bg-gradient-to-br from-cyan-500/5 to-transparent">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <GitBranch className="h-5 w-5 text-primary" />
-                Experimental Branches
-              </CardTitle>
-              <CardDescription>
-                Testing workflow variations before merging to main
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Card className="border-border bg-card rounded-none p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <GitBranch className="w-5 h-5 text-foreground" />
+                  Experimental Branches
+                </h3>
+                <p className="text-xs text-muted-foreground font-mono mt-1">Testing workflow variations before merging to main</p>
+              </div>
+            </div>
+            <div className="space-y-4">
               {experimentalBranches.map((version) => {
                 const TriggerIcon = triggerIcons[version.trigger]
                 return (
-                  <motion.div
-                    key={version.version}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="border border-cyan-500/20 rounded-lg p-4 bg-cyan-500/5"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Tag className="h-4 w-4 text-cyan-400" />
-                          <span className="font-semibold">{version.version}</span>
-                          <Badge variant="outline" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
-                            experimental
-                          </Badge>
-                          <Badge variant="outline" className={cn('text-xs', triggerColors[version.trigger])}>
-                            <TriggerIcon className="h-3 w-3 mr-1" />
-                            {version.trigger.replace('_', ' ')}
-                          </Badge>
+                  <div key={version.version} className="border border-border/50 bg-secondary/10 p-4 hover:border-foreground/30 transition-colors group">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-background border border-border">
+                          <GitBranch className="w-4 h-4 text-muted-foreground" />
                         </div>
-                        <div className="space-y-1 mb-3">
-                          {version.changes.map((change, idx) => (
-                            <div key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                              <ChevronRight className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                              <span>{change}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex items-center gap-4 text-xs">
-                          <span className="text-green-400 font-semibold">{version.accuracy}% accuracy</span>
-                          <span className="text-muted-foreground">{version.metrics.tasks} test runs</span>
-                          <span className="text-muted-foreground">{version.metrics.cost}/run</span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold text-sm">{version.version}</span>
+                            <Badge variant="outline" className="rounded-none text-[10px] uppercase tracking-wider">Experimental</Badge>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className={cn("rounded-none text-[10px] uppercase tracking-wider border-0 bg-transparent px-0", triggerColors[version.trigger])}>
+                              <TriggerIcon className="w-3 h-3 mr-1" />
+                              {version.trigger.replace('_', ' ')}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" className="gap-2">
-                        <GitMerge className="h-4 w-4" />
-                        Merge to main
+                      <Button variant="outline" size="sm" className="rounded-none h-8 gap-2">
+                        <GitMerge className="w-3 h-3" />
+                        Merge
                       </Button>
                     </div>
-                  </motion.div>
+
+                    <div className="pl-[52px] space-y-4">
+                      <div className="space-y-1">
+                        {version.changes.map((change, idx) => (
+                          <div key={idx} className="flex items-start gap-2 text-xs text-muted-foreground font-mono">
+                            <span className="text-foreground/30 select-none">|</span>
+                            <span>{change}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-6 pt-2 border-t border-border/30">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Accuracy</span>
+                          <span className="text-sm font-mono text-emerald-500">{version.accuracy}%</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Runs</span>
+                          <span className="text-sm font-mono">{version.metrics.tasks}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Cost</span>
+                          <span className="text-sm font-mono">{version.metrics.cost}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 )
               })}
-            </CardContent>
+            </div>
           </Card>
         )}
 
         {/* Version Timeline */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <GitCommit className="h-5 w-5 text-primary" />
-              Version Timeline (main branch)
-            </CardTitle>
-            <CardDescription>
-              Chronological history of autonomous workflow evolution
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mainBranchVersions.map((version, index) => {
-                const TriggerIcon = triggerIcons[version.trigger]
-                return (
-                  <motion.div
-                    key={version.version}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className={cn(
-                      'border rounded-lg p-4 transition-all hover:border-border',
-                      version.status === 'latest' && 'border-green-500/30 bg-green-500/5'
-                    )}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="flex flex-col items-center shrink-0">
-                        <div className={cn(
-                          'flex h-10 w-10 items-center justify-center rounded-full border-2',
-                          version.status === 'latest'
-                            ? 'border-green-500 bg-green-500/10'
-                            : 'border-border bg-accent/50'
-                        )}>
-                          <GitCommit className={cn(
-                            'h-5 w-5',
-                            version.status === 'latest' ? 'text-green-500' : 'text-muted-foreground'
-                          )} />
-                        </div>
-                        {index < mainBranchVersions.length - 1 && (
-                          <div className="w-0.5 flex-1 min-h-[4rem] bg-border/40 mt-2" />
-                        )}
-                      </div>
+        <Card className="border-border bg-card rounded-none p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <GitCommit className="w-5 h-5 text-foreground" />
+                Version Timeline
+              </h3>
+              <p className="text-xs text-muted-foreground font-mono mt-1">Main branch history</p>
+            </div>
+          </div>
 
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Tag className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-semibold">{version.version}</span>
+          <div className="relative space-y-0">
+            {/* Vertical Line */}
+            <div className="absolute left-[19px] top-4 bottom-4 w-px bg-border/50" />
+
+            {mainBranchVersions.map((version, index) => {
+              const TriggerIcon = triggerIcons[version.trigger]
+              return (
+                <div key={version.version} className="relative pl-12 pb-8 last:pb-0 group">
+                  {/* Dot */}
+                  <div className={cn(
+                    "absolute left-0 top-1 w-10 h-10 flex items-center justify-center border bg-background z-10 transition-colors",
+                    version.status === 'latest' ? "border-emerald-500 text-emerald-500" : "border-border text-muted-foreground group-hover:border-foreground/50 group-hover:text-foreground"
+                  )}>
+                    <GitCommit className="w-4 h-4" />
+                  </div>
+
+                  <div className="border border-border/50 bg-card p-5 hover:border-foreground/20 transition-all">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                      <div>
+                        <div className="flex items-center gap-3 mb-1">
+                          <span className="font-mono font-bold text-lg">{version.version}</span>
                           {version.status === 'latest' && (
-                            <Badge variant="default" className="gap-1">
-                              <TrendingUp className="h-3 w-3" />
+                            <Badge className="rounded-none bg-emerald-500 hover:bg-emerald-600 text-black font-mono text-[10px] uppercase tracking-wider">
                               Latest
                             </Badge>
                           )}
-                          <Badge variant="outline" className={cn('text-xs ml-2', triggerColors[version.trigger])}>
-                            <TriggerIcon className="h-3 w-3 mr-1" />
+                          <Badge variant="outline" className={cn("rounded-none text-[10px] uppercase tracking-wider border-0 bg-transparent px-0", triggerColors[version.trigger])}>
+                            <TriggerIcon className="w-3 h-3 mr-1" />
                             {version.trigger.replace('_', ' ')}
                           </Badge>
-                          <span className="text-xs text-muted-foreground ml-auto">{version.author}</span>
                         </div>
-
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground font-mono">
                           <span>{version.date}</span>
-                          <span>•</span>
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {version.time}
-                          </div>
-                          <span>•</span>
-                          <span className="font-medium text-green-400">
-                            {version.accuracy}% accuracy
-                          </span>
-                          <span>•</span>
-                          <span className={cn(
-                            'font-medium',
-                            version.errorRate <= 5 ? 'text-green-400' : 'text-orange-400'
-                          )}>
-                            {version.errorRate}% errors
-                          </span>
-                        </div>
-
-                        <div className="mb-3">
-                          <p className="text-xs font-medium text-muted-foreground mb-2">Changes:</p>
-                          <div className="space-y-1">
-                            {version.changes.map((change, i) => (
-                              <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                                <ChevronRight className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                                <span>{change}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-6 p-3 rounded-lg bg-secondary/30">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Tasks</p>
-                            <p className="text-sm font-semibold">{version.metrics.tasks}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Success Rate</p>
-                            <p className="text-sm font-semibold text-green-400">{version.metrics.successRate}%</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Avg Time</p>
-                            <p className="text-sm font-semibold">{version.metrics.avgTime}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Cost/Run</p>
-                            <p className="text-sm font-semibold">{version.metrics.cost}</p>
-                          </div>
+                          <span>{version.time}</span>
+                          <span>By {version.author}</span>
                         </div>
                       </div>
 
-                      <div className="flex gap-2 shrink-0">
-                        <Button variant="ghost" size="sm" className="gap-2">
-                          <Eye className="h-4 w-4" />
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" className="rounded-none h-8 w-8 p-0">
+                          <Eye className="w-3 h-3" />
                         </Button>
                         {version.status !== 'latest' && (
-                          <Button variant="ghost" size="sm" className="gap-2">
-                            <Download className="h-4 w-4" />
+                          <Button variant="outline" size="sm" className="rounded-none h-8 w-8 p-0">
+                            <History className="w-3 h-3" />
                           </Button>
                         )}
                       </div>
                     </div>
-                  </motion.div>
-                )
-              })}
-            </div>
-          </CardContent>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-mono">Changelog</p>
+                        <div className="space-y-1.5">
+                          {version.changes.map((change, i) => (
+                            <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                              <ChevronRight className="w-3 h-3 mt-1 text-foreground/40 shrink-0" />
+                              <span>{change}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-mono">Performance Metrics</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-3 bg-secondary/10 border border-border/50">
+                          <div>
+                            <span className="text-[10px] text-muted-foreground block">Tasks</span>
+                            <span className="font-mono text-sm font-semibold">{version.metrics.tasks}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-muted-foreground block">Success</span>
+                            <span className="font-mono text-sm font-semibold text-emerald-500">{version.metrics.successRate}%</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-muted-foreground block">Latency</span>
+                            <span className="font-mono text-sm font-semibold">{version.metrics.avgTime}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-muted-foreground block">Cost</span>
+                            <span className="font-mono text-sm font-semibold">{version.metrics.cost}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </Card>
       </main>
     </div>

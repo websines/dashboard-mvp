@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -20,7 +20,13 @@ import {
   AlertCircle,
   ChevronRight,
   Activity,
-  FileText
+  FileText,
+  Search,
+  Filter,
+  Download,
+  MoreHorizontal,
+  Clock,
+  Target
 } from 'lucide-react'
 
 interface Scenario {
@@ -198,249 +204,194 @@ export default function ScenarioTrainingPage() {
   return (
     <div
       className={cn(
-        'min-h-screen transition-all duration-300',
-        'lg:ml-64',
-        sidebarCollapsed && 'lg:ml-16',
-        'max-lg:ml-0'
+        'min-h-screen bg-background transition-all duration-300 ease-in-out',
+        'max-lg:ml-0',
+        sidebarCollapsed ? 'lg:ml-[70px]' : 'lg:ml-64'
       )}
     >
       <Header
         title="Scenario Training"
-        subtitle="Pre-Made + Discovered Scenarios"
+        subtitle="Edge Case Management"
         breadcrumbs={[{ label: 'Training' }, { label: 'Scenarios' }]}
       />
 
-      <main className="mt-16 p-4 sm:p-6 lg:p-8">
-        <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
+
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text"
-            >
-              Scenario Library
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-sm text-muted-foreground"
-            >
-              Client-provided scenarios + autonomously discovered patterns
-            </motion.p>
+            <h1 className="text-2xl font-bold tracking-tight">Scenario Library</h1>
+            <p className="text-sm text-muted-foreground font-mono mt-1">
+              {scenarios.length} active training scenarios
+            </p>
           </div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Button>
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Scenarios
+          <div className="flex gap-2">
+            <Button variant="outline" className="rounded-none h-10 border-dashed">
+              <Download className="w-4 h-4 mr-2" />
+              Export
             </Button>
-          </motion.div>
+            <Button className="rounded-none h-10 px-6">
+              <Upload className="w-4 h-4 mr-2" />
+              Import Scenarios
+            </Button>
+          </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid gap-4 md:grid-cols-4 mb-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Total Scenarios</CardTitle>
-                <FlaskConical className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{scenarios.length}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {preMadeScenarios.length} pre-made, {discoveredScenarios.length} discovered
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Total Scenarios</p>
+                <h3 className="text-2xl font-bold mt-1">{scenarios.length}</h3>
+              </div>
+              <FlaskConical className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+              <span>{preMadeScenarios.length} static</span>
+              <span>•</span>
+              <span className="text-cyan-500">{discoveredScenarios.length} discovered</span>
+            </div>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Times Encountered</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totalEncounters}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Across all scenarios
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Total Encounters</p>
+                <h3 className="text-2xl font-bold mt-1">{totalEncounters}</h3>
+              </div>
+              <Activity className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">Lifetime volume</p>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Avg Success Rate</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-400">{avgSuccessRate}%</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Workflow effectiveness
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Avg Success Rate</p>
+                <h3 className="text-2xl font-bold mt-1">{avgSuccessRate}%</h3>
+              </div>
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <div className="w-full bg-secondary h-1 mt-4">
+              <div className="bg-foreground h-full" style={{ width: `${avgSuccessRate}%` }} />
+            </div>
+          </Card>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Auto-Discovered</CardTitle>
-                <Sparkles className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{discoveredScenarios.length}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Learned by Supervisor Agent
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Auto-Discovery</p>
+                <h3 className="text-2xl font-bold mt-1">{discoveredScenarios.length}</h3>
+              </div>
+              <Sparkles className="w-4 h-4 text-cyan-500" />
+            </div>
+            <p className="text-xs text-cyan-500 font-mono flex items-center gap-1">
+              <Activity className="w-3 h-3" /> Active learning
+            </p>
+          </Card>
         </div>
 
-        {/* Pre-Made Scenarios */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
-              Pre-Made Scenarios
-            </CardTitle>
-            <CardDescription>
-              Client-provided scenarios uploaded during initial setup
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {preMadeScenarios.map((scenario, index) => (
-                <motion.div
-                  key={scenario.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="border border-border/40 rounded-lg p-4 bg-secondary/20 hover:bg-secondary/30 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-semibold text-sm">{scenario.name}</span>
-                        <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-400 border-blue-500/20">
-                          {scenario.id}
-                        </Badge>
-                        <Badge variant="secondary" className={cn(
-                          'text-xs',
-                          scenario.frequency === 'common' && 'bg-green-500/10 text-green-400',
-                          scenario.frequency === 'uncommon' && 'bg-yellow-500/10 text-yellow-400',
-                          scenario.frequency === 'rare' && 'bg-orange-500/10 text-orange-400'
-                        )}>
-                          {scenario.frequency}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-3">{scenario.description}</p>
-                      <div className="bg-accent/30 rounded p-2 mb-3">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">Trigger:</p>
-                        <p className="text-xs text-foreground">{scenario.trigger}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-2">Workflow Response:</p>
-                        <div className="space-y-1">
-                          {scenario.workflowResponse.map((response, idx) => (
-                            <div key={idx} className="flex items-start gap-2 text-xs">
-                              <ChevronRight className="h-3 w-3 text-primary mt-0.5 shrink-0" />
-                              <span className="text-muted-foreground">{response}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-4 text-right shrink-0">
-                      <div className="text-xl font-bold text-green-400 mb-1">{scenario.successRate}%</div>
-                      <div className="text-xs text-muted-foreground mb-2">success rate</div>
-                      <div className="text-sm font-semibold mb-1">{scenario.timesEncountered}</div>
-                      <div className="text-xs text-muted-foreground mb-2">encounters</div>
-                      <div className="text-xs text-muted-foreground">Last: {scenario.lastSeen}</div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Scenarios List */}
+        <div className="space-y-6">
 
-        {/* Discovered Scenarios */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-primary" />
-              <Sparkles className="h-4 w-4 text-cyan-400 animate-pulse" />
-              Discovered Scenarios
-            </CardTitle>
-            <CardDescription>
-              Patterns autonomously identified by Supervisor Agent during operation
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {discoveredScenarios.map((scenario, index) => (
-                <motion.div
-                  key={scenario.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="border border-cyan-500/20 rounded-lg p-4 bg-gradient-to-br from-cyan-500/5 to-transparent hover:from-cyan-500/10 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
-                        <span className="font-semibold text-sm">{scenario.name}</span>
-                        <Badge variant="outline" className="text-xs bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
-                          {scenario.id}
+          {/* Controls */}
+          <div className="flex items-center justify-between">
+            <div className="flex gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-3 w-3 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search scenarios..."
+                  className="h-8 w-64 bg-background border border-border pl-8 pr-3 text-xs focus:outline-none focus:border-foreground transition-colors"
+                />
+              </div>
+              <Button variant="outline" size="sm" className="rounded-none h-8 border-dashed">
+                <Filter className="w-3 h-3 mr-2" /> Filter
+              </Button>
+            </div>
+          </div>
+
+          {/* Table */}
+          <Card className="border-border bg-card rounded-none overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-muted/30 border-b border-border text-xs uppercase font-mono text-muted-foreground">
+                  <tr>
+                    <th className="p-4 font-medium w-[300px]">Scenario Name</th>
+                    <th className="p-4 font-medium">Type</th>
+                    <th className="p-4 font-medium">Frequency</th>
+                    <th className="p-4 font-medium">Success Rate</th>
+                    <th className="p-4 font-medium">Encounters</th>
+                    <th className="p-4 font-medium text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  {scenarios.map((scenario) => (
+                    <tr key={scenario.id} className="group hover:bg-muted/20 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-1">
+                            {scenario.type === 'discovered' ?
+                              <Sparkles className="w-4 h-4 text-cyan-500" /> :
+                              <Target className="w-4 h-4 text-muted-foreground" />
+                            }
+                          </div>
+                          <div>
+                            <span className="font-medium text-foreground block">{scenario.name}</span>
+                            <span className="text-xs text-muted-foreground line-clamp-1">{scenario.description}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "rounded-none text-[10px] uppercase tracking-wider font-mono",
+                            scenario.type === 'discovered' ? "text-cyan-500 border-cyan-500/20 bg-cyan-500/5" : "text-muted-foreground border-border"
+                          )}
+                        >
+                          {scenario.type}
                         </Badge>
-                        <Badge variant="secondary" className={cn(
-                          'text-xs',
-                          scenario.frequency === 'common' && 'bg-green-500/10 text-green-400',
-                          scenario.frequency === 'uncommon' && 'bg-yellow-500/10 text-yellow-400',
-                          scenario.frequency === 'rare' && 'bg-orange-500/10 text-orange-400'
-                        )}>
+                      </td>
+                      <td className="p-4">
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "rounded-none text-[10px] uppercase tracking-wider font-mono border-0",
+                            scenario.frequency === 'common' ? "text-emerald-500 bg-emerald-500/10" :
+                              scenario.frequency === 'uncommon' ? "text-yellow-500 bg-yellow-500/10" :
+                                "text-orange-500 bg-orange-500/10"
+                          )}
+                        >
                           {scenario.frequency}
                         </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-3">{scenario.description}</p>
-                      <div className="bg-cyan-500/10 border border-cyan-500/20 rounded p-2 mb-3">
-                        <p className="text-xs font-medium text-cyan-300 mb-1">Auto-Detected Trigger:</p>
-                        <p className="text-xs text-foreground">{scenario.trigger}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-2">Autonomous Response:</p>
-                        <div className="space-y-1">
-                          {scenario.workflowResponse.map((response, idx) => (
-                            <div key={idx} className="flex items-start gap-2 text-xs">
-                              <ChevronRight className="h-3 w-3 text-cyan-400 mt-0.5 shrink-0" />
-                              <span className="text-muted-foreground">{response}</span>
-                            </div>
-                          ))}
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <span className={cn("font-mono", scenario.successRate >= 90 ? "text-emerald-500" : "text-yellow-500")}>
+                            {scenario.successRate}%
+                          </span>
                         </div>
-                      </div>
-                    </div>
-                    <div className="ml-4 text-right shrink-0">
-                      <div className="text-xl font-bold text-green-400 mb-1">{scenario.successRate}%</div>
-                      <div className="text-xs text-muted-foreground mb-2">success rate</div>
-                      <div className="text-sm font-semibold mb-1">{scenario.timesEncountered}</div>
-                      <div className="text-xs text-muted-foreground mb-2">encounters</div>
-                      <div className="text-xs text-muted-foreground">Last: {scenario.lastSeen}</div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                      </td>
+                      <td className="p-4">
+                        <div className="flex flex-col">
+                          <span className="font-mono text-xs">{scenario.timesEncountered}</span>
+                          <span className="text-[10px] text-muted-foreground">{scenario.lastSeen}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-right">
+                        <Button variant="ghost" size="sm" className="rounded-none h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
       </main>
     </div>
   )
