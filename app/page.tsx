@@ -49,11 +49,12 @@ const performanceData = [
 ]
 
 const activeAgents = [
-  { name: 'Supervisor Alpha', status: 'active', load: 78, type: 'Orchestrator', task: 'Optimizing Route' },
-  { name: 'Research Unit-01', status: 'working', load: 92, type: 'Worker', task: 'Data Mining' },
-  { name: 'Writer Unit-04', status: 'idle', load: 5, type: 'Worker', task: 'Waiting for Input' },
-  { name: 'Reviewer Unit-02', status: 'active', load: 45, type: 'Worker', task: 'Validation Check' },
-  { name: 'Guardian Sentinel', status: 'active', load: 12, type: 'Security', task: 'Policy Enforcement' },
+  { name: 'Supervisor Agent', status: 'active', load: 68, type: 'Orchestrator', task: 'Managing TechFlow Support' },
+  { name: 'Ticket Classifier', status: 'working', load: 82, type: 'Worker', task: 'Categorizing Support Tickets' },
+  { name: 'Response Composer', status: 'active', load: 91, type: 'Worker', task: 'Drafting Customer Response' },
+  { name: 'Knowledge Retriever', status: 'active', load: 73, type: 'Worker', task: 'Searching Help Documentation' },
+  { name: 'Compliance Validator', status: 'active', load: 24, type: 'Security', task: 'Enforcing Business Rules' },
+  { name: 'Integration Helper', status: 'idle', load: 8, type: 'Worker', task: 'Standby for API Issues' },
 ]
 
 export default function DashboardPage() {
@@ -74,10 +75,10 @@ export default function DashboardPage() {
         {/* Hero Metrics - HUD Style */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border border border-border">
           {[
-            { label: 'Active Workflows', value: activeWorkflowsCount, total: totalWorkflows, icon: Network, color: 'text-blue-500' },
+            { label: 'TechFlow Workflow', value: 'v2.4', sub: '90 Days Live', icon: Network, color: 'text-blue-500' },
             { label: 'Success Rate', value: `${avgSuccessRate}%`, trend: '+1.2%', icon: Activity, color: 'text-emerald-500' },
             { label: 'Total Executions', value: totalExecutions.toLocaleString(), trend: '+124', icon: Zap, color: 'text-amber-500' },
-            { label: 'Active Agents', value: '12', sub: '4 Idle', icon: Bot, color: 'text-purple-500' },
+            { label: 'Active Agents', value: '6', sub: '1 Idle', icon: Bot, color: 'text-purple-500' },
           ].map((metric, i) => (
             <motion.div
               key={metric.label}
@@ -103,7 +104,8 @@ export default function DashboardPage() {
                 <h3 className="text-3xl font-bold tracking-tight text-foreground font-mono">{metric.value}</h3>
                 <div className="flex items-center gap-2 mt-2">
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">{metric.label}</p>
-                  {metric.total && <span className="text-[10px] text-muted-foreground font-mono">/ {metric.total}</span>}
+                  {('total' in metric) && <span className="text-[10px] text-muted-foreground font-mono">/ {(metric as any).total}</span>}
+                  {('sub' in metric) && <span className="text-[10px] text-muted-foreground font-mono">{(metric as any).sub}</span>}
                 </div>
               </div>
             </motion.div>

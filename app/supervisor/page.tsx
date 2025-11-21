@@ -42,30 +42,30 @@ const kanbanColumns = [
 ]
 
 const initialTasks = [
-  { id: 't1', title: 'Customer Support Agent v2.1', type: 'Optimization', column: 'monitoring', priority: 'high', assignee: 'Supervisor Alpha' },
-  { id: 't2', title: 'Data Entry Bot - Edge Case #402', type: 'Fix', column: 'optimizing', priority: 'critical', assignee: 'Supervisor Alpha' },
-  { id: 't3', title: 'Email Outreach Flow B', type: 'Experiment', column: 'shadow_testing', priority: 'medium', assignee: 'Supervisor Beta' },
-  { id: 't4', title: 'Invoice Processor Lite', type: 'Distillation', column: 'distilling', priority: 'low', assignee: 'Supervisor Gamma' },
-  { id: 't5', title: 'Legal Reviewer v1.0', type: 'Deployment', column: 'deployed', priority: 'high', assignee: 'Supervisor Alpha' },
-  { id: 't6', title: 'Logistics Router', type: 'Optimization', column: 'monitoring', priority: 'medium', assignee: 'Supervisor Beta' },
-  { id: 't7', title: 'Search Agent v3.0', type: 'Experiment', column: 'ab_testing', priority: 'high', assignee: 'Supervisor Delta' },
+  { id: 't1', title: 'TechFlow Response Composer', type: 'Optimization', column: 'monitoring', priority: 'high', assignee: 'Supervisor Agent' },
+  { id: 't2', title: 'Integration Helper - API v3 Update', type: 'Fix', column: 'optimizing', priority: 'critical', assignee: 'Supervisor Agent' },
+  { id: 't3', title: 'Proactive Version Check v2.5', type: 'Experiment', column: 'shadow_testing', priority: 'high', assignee: 'Supervisor Agent' },
+  { id: 't4', title: 'Ticket Classifier (Distill)', type: 'Distillation', column: 'distilling', priority: 'high', assignee: 'Supervisor Agent' },
+  { id: 't5', title: 'Variable Response Timing', type: 'Deployment', column: 'deployed', priority: 'medium', assignee: 'Supervisor Agent' },
+  { id: 't6', title: 'Context Gatherer Optimization', type: 'Optimization', column: 'deployed', priority: 'low', assignee: 'Supervisor Agent' },
+  { id: 't7', title: 'Response Length A/B Test', type: 'Experiment', column: 'ab_testing', priority: 'medium', assignee: 'Supervisor Agent' },
 ]
 
 const liveFeed = [
-  { id: 1, time: 'Just now', message: 'Detected anomaly in "Data Entry Bot" performance. Initiating rollback.', type: 'alert' },
-  { id: 2, time: '2m ago', message: 'A/B Test "Email Outreach" reached statistical significance (95%). Promoting Variant B.', type: 'success' },
-  { id: 3, time: '5m ago', message: 'Distillation of "Invoice Processor" complete. Model size reduced by 40%.', type: 'info' },
-  { id: 4, time: '12m ago', message: 'New edge case encountered in "Customer Support". Spawning training scenario.', type: 'warning' },
+  { id: 1, time: 'Just now', message: 'TechFlow Ticket #1847: Compliance Validator passed 8/8 rules. Response sent.', type: 'success' },
+  { id: 2, time: '2m ago', message: 'A/B Test "Response Length" reached 20% traffic. Monitoring CSAT metrics.', type: 'info' },
+  { id: 3, time: '5m ago', message: 'Ticket Classifier distillation ready: 1.2% error rate. Savings: $279/mo.', type: 'success' },
+  { id: 4, time: '12m ago', message: 'New edge case: Subscription pause for medical leave. Pattern recorded.', type: 'warning' },
 ]
 
-// Mock Data for Decision Logs
+// Mock Data for Decision Logs - TechFlow
 const decisionLogs = [
-  { id: 'DL-1024', time: '10:42:15', type: 'Intervention', agent: 'Customer Support v2', context: 'Hallucination detected in response draft', outcome: 'Blocked & Regenerated', confidence: 0.98 },
-  { id: 'DL-1023', time: '10:38:00', type: 'Optimization', agent: 'Sales Outreach Bot', context: 'Response rate dropped below threshold', outcome: 'Switched to Template B', confidence: 0.85 },
-  { id: 'DL-1022', time: '10:35:22', type: 'Allocation', agent: 'Data Scraper Swarm', context: 'High latency in region us-east-1', outcome: 'Scaled up 2 worker nodes', confidence: 0.92 },
-  { id: 'DL-1021', time: '10:30:10', type: 'Distillation', agent: 'Invoice Processor', context: 'Model size exceeded 2GB limit', outcome: 'Initiated quantization (fp16)', confidence: 0.99 },
-  { id: 'DL-1020', time: '10:15:45', type: 'Security', agent: 'Internal Query Bot', context: 'Attempted access to restricted DB', outcome: 'Access Denied & Flagged', confidence: 1.00 },
-  { id: 'DL-1019', time: '10:10:05', type: 'A/B Test', agent: 'Email Subject Gen', context: 'Variant A vs Variant B complete', outcome: 'Promoted Variant B (Win)', confidence: 0.96 },
+  { id: 'DL-1024', time: '10:42:15', type: 'Intervention', agent: 'Response Composer', context: 'Refund >$500 detected in draft', outcome: 'Escalated to Finance Team', confidence: 1.00 },
+  { id: 'DL-1023', time: '10:38:00', type: 'Optimization', agent: 'Context Gatherer', context: 'Empty CRM queries detected (78%)', outcome: 'Skip empty HubSpot calls', confidence: 0.95 },
+  { id: 'DL-1022', time: '10:35:22', type: 'Allocation', agent: 'Knowledge Retriever', context: 'High search latency (2.8s avg)', outcome: 'Enabled vector cache', confidence: 0.89 },
+  { id: 'DL-1021', time: '10:30:10', type: 'Distillation', agent: 'Ticket Classifier', context: 'Error rate 1.2% (below 3% threshold)', outcome: 'Initiated model distillation', confidence: 0.98 },
+  { id: 'DL-1020', time: '10:15:45', type: 'Security', agent: 'Compliance Validator', context: 'GDPR data request detected', outcome: 'Routed to Legal (72h SLA)', confidence: 1.00 },
+  { id: 'DL-1019', time: '10:10:05', type: 'A/B Test', agent: 'Response Composer', context: 'Friendly greeting test complete', outcome: 'Promoted Variant B (+9.5% CSAT)', confidence: 0.94 },
 ]
 
 export default function SupervisorPage() {
@@ -82,8 +82,8 @@ export default function SupervisorPage() {
       )}
     >
       <Header
-        title="Supervisor Nexus"
-        subtitle="Orchestration & Evolution"
+        title="TechFlow Supervisor Agent"
+        subtitle="Autonomous orchestration | 12 versions deployed | 2 agents created autonomously"
         breadcrumbs={[{ label: 'Supervisor' }]}
       />
 

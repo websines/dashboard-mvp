@@ -32,58 +32,58 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import Link from 'next/link'
 
-// Mock Data for Evolution Agents
+// Mock Data for Evolution Agents - TechFlow L1 Support
 const evolutionAgents = [
   {
     id: 'EA-001',
-    name: 'Sim Agent Alpha',
+    name: 'Shadow Test Agent',
     status: 'running',
-    task: 'Shadow Testing v2.3',
-    target: 'Customer Support Flow',
-    progress: 78,
-    metrics: { accuracy: '99.2%', latency: '45ms' }
+    task: 'Shadow Testing Proactive Resolution',
+    target: 'TechFlow Support v2.5',
+    progress: 67,
+    metrics: { accuracy: '92.4%', latency: '2.0s' }
   },
   {
     id: 'EA-002',
-    name: 'A/B Agent Beta',
+    name: 'A/B Testing Agent',
     status: 'running',
-    task: 'Split Testing (50/50)',
-    target: 'Sales Outreach v4',
+    task: 'Split Testing Response Length',
+    target: 'TechFlow Support (20% traffic)',
     progress: 45,
-    metrics: { confidence: '92%', uplift: '+12%' }
+    metrics: { confidence: '67%', uplift: 'TBD' }
   },
   {
     id: 'EA-003',
     name: 'Distillation Bot',
     status: 'idle',
-    task: 'Waiting for queue',
-    target: 'Invoice Processor',
-    progress: 0,
-    metrics: { compression: 'Pending', speedup: 'Pending' }
+    task: 'Ready for Password Reset',
+    target: 'Ticket Classifier (1.2% error)',
+    progress: 100,
+    metrics: { candidate: 'Yes', savings: '$279/mo' }
   },
   {
     id: 'EA-004',
-    name: 'Regression Hunter',
+    name: 'Edge Case Hunter',
     status: 'analyzing',
-    task: 'Analyzing Failure Cases',
-    target: 'Legal Reviewer v1',
-    progress: 92,
-    metrics: { found: '3 edge cases', severity: 'Low' }
+    task: 'Analyzing Escalated Tickets',
+    target: 'TechFlow Support (449 escalations)',
+    progress: 78,
+    metrics: { found: '2 patterns', type: 'API errors' }
   }
 ]
 
 const activeExperiments = [
-  { id: 'EXP-102', name: 'Tone Adjustment', type: 'A/B Test', status: 'Active', uplift: '+5.4%', confidence: '88%' },
-  { id: 'EXP-103', name: 'Context Window Optimization', type: 'Shadow Run', status: 'Passing', uplift: '0%', confidence: '99%' },
-  { id: 'EXP-104', name: 'Tool Usage Pruning', type: 'Simulation', status: 'Running', uplift: 'Pending', confidence: 'Pending' },
+  { id: 'EXP-104', name: 'Response Length Optimization', type: 'A/B Test', status: 'Running', uplift: 'Pending', confidence: '67%' },
+  { id: 'EXP-105', name: 'Proactive Version Check v2.5', type: 'Shadow Run', status: 'Testing', uplift: '+3%', confidence: '89%' },
+  { id: 'EXP-106', name: 'Context Caching for Speed', type: 'Simulation', status: 'Planning', uplift: 'Pending', confidence: 'Pending' },
 ]
 
 const pipelineStages = [
-  { id: 'discovery', label: 'Discovery', count: 8, icon: Sparkles, color: 'text-cyan-500' },
-  { id: 'simulation', label: 'Simulation', count: 12, icon: FlaskConical, color: 'text-blue-500' },
-  { id: 'ab-testing', label: 'A/B Testing', count: 5, icon: Split, color: 'text-purple-500' },
-  { id: 'distillation', label: 'Distillation', count: 3, icon: Layers, color: 'text-amber-500' },
-  { id: 'production', label: 'Production', count: 142, icon: CheckCircle2, color: 'text-emerald-500' },
+  { id: 'discovery', label: 'Discovery', count: 2, icon: Sparkles, color: 'text-cyan-500' },
+  { id: 'simulation', label: 'Simulation', count: 3, icon: FlaskConical, color: 'text-blue-500' },
+  { id: 'ab-testing', label: 'A/B Testing', count: 3, icon: Split, color: 'text-purple-500' },
+  { id: 'distillation', label: 'Distillation', count: 1, icon: Layers, color: 'text-amber-500' },
+  { id: 'production', label: 'Production', count: 12, icon: CheckCircle2, color: 'text-emerald-500' },
 ]
 
 export default function EvolutionLabPage() {
@@ -98,9 +98,9 @@ export default function EvolutionLabPage() {
       )}
     >
       <Header
-        title="Evolution Nexus"
-        subtitle="Autonomous Optimization Command Center"
-        breadcrumbs={[{ label: 'Evolution Nexus' }]}
+        title="TechFlow Evolution Lab"
+        subtitle="Self-Improvement Pipeline | Day 90 | 12 versions deployed autonomously"
+        breadcrumbs={[{ label: 'Evolution Lab' }]}
       />
 
       <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
@@ -120,15 +120,15 @@ export default function EvolutionLabPage() {
               <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(0,20,0,0.8)_100%)] pointer-events-none z-10" />
               <div className="space-y-2 animate-in slide-in-from-bottom duration-1000">
                 {[
-                  "Allocating GPU Cluster A-9...",
-                  "Detected Drift in Scenario #492",
-                  "Optimizing Context Window...",
-                  "Agent Alpha: Shadow Run Initiated",
-                  "Distillation Queue: +3 Models",
-                  "Verifying Compliance Rules...",
-                  "System Load: 42% (Optimal)",
-                  "New Pattern Discovered: 'Refund Loop'",
-                  "Re-routing Traffic to Variant B"
+                  "Processing TechFlow ticket #1843...",
+                  "Ticket Classifier: 92% confidence (billing)",
+                  "Compliance Validator: Passed 8/8 rules",
+                  "Shadow Test: v2.5 proactive check (67%)",
+                  "A/B Test EXP-104: 20% traffic split",
+                  "Distillation ready: Password Reset (1.2%)",
+                  "Integration Helper: API v3 detected",
+                  "Edge Case: New subscription pause pattern",
+                  "Response sent: 2.1s | Customer: satisfied"
                 ].map((log, i) => (
                   <div key={i} className="flex gap-2 opacity-80 hover:opacity-100 transition-opacity">
                     <span className="text-green-700">[{new Date().toLocaleTimeString()}]</span>
@@ -175,10 +175,10 @@ export default function EvolutionLabPage() {
         {/* Hero Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-px bg-border border border-border">
           {[
-            { label: 'Active Experiments', value: '12', icon: FlaskConical, color: 'text-cyan-500' },
-            { label: 'Global Improvement', value: '+18.4%', icon: TrendingUp, color: 'text-emerald-500' },
-            { label: 'Compute Usage', value: '42%', icon: Cpu, color: 'text-purple-500' },
-            { label: 'Agents Active', value: '4', icon: Bot, color: 'text-amber-500' },
+            { label: 'Active Experiments', value: '3', icon: FlaskConical, color: 'text-cyan-500' },
+            { label: 'Accuracy Improvement', value: '+32%', icon: TrendingUp, color: 'text-emerald-500' },
+            { label: 'Automation Rate', value: '75.7%', icon: Cpu, color: 'text-purple-500' },
+            { label: 'Evolution Agents', value: '4', icon: Bot, color: 'text-amber-500' },
           ].map((stat, i) => (
             <div key={i} className="bg-card p-6 flex items-center justify-between group hover:bg-accent/5 transition-colors">
               <div>
@@ -349,7 +349,7 @@ export default function EvolutionLabPage() {
                 </div>
                 <div className="pt-4 border-t border-border">
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Evolution agents have autonomously optimized <span className="text-foreground font-medium">42 workflows</span> this week, resulting in significant cost and latency reductions.
+                    Over 90 days, TechFlow L1 Support has evolved through <span className="text-foreground font-medium">12 autonomous versions</span>, improving accuracy from 62% to 97.2% while reducing cost by 87%.
                   </p>
                 </div>
               </div>

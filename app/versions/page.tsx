@@ -299,12 +299,11 @@ export default function VersionsPage() {
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Workflow Versions</h1>
+            <h1 className="text-2xl font-bold tracking-tight">TechFlow L1 Support Automation - Version History</h1>
             <p className="text-sm text-muted-foreground font-mono mt-1">
-              Automatic version creation by Supervisor Agent
+              90-day evolution | v1.0 (62% accuracy) → v2.4 (94% accuracy) | Autonomous improvements by Supervisor
             </p>
-          </div>
-          <div className="flex items-center gap-2">
+          </div>          <div className="flex items-center gap-2">
             <Button variant="outline" className="rounded-none h-8 gap-2 font-mono text-xs">
               <GitBranch className="w-3 h-3" />
               main
