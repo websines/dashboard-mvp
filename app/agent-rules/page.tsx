@@ -8,62 +8,72 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { BrainCircuit, Plus, Shield, AlertTriangle, CheckCircle2, Edit, Filter, Search, MoreHorizontal, Scale, Lock, AlertOctagon, Zap } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+import { initialRules, Rule } from './data'
+import { useState } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 
-const rules = [
-  {
-    id: 'rl-001',
-    name: 'Compliance Check',
-    description: 'Ensure all responses meet regulatory requirements',
-    status: 'active',
-    priority: 'high',
-    triggers: 3420,
-    category: 'Safety',
-    lastTriggered: '2m ago',
-  },
-  {
-    id: 'rl-002',
-    name: 'PII Detection',
-    description: 'Automatically redact personal identifiable information',
-    status: 'active',
-    priority: 'critical',
-    triggers: 1250,
-    category: 'Security',
-    lastTriggered: '1h ago',
-  },
-  {
-    id: 'rl-003',
-    name: 'Tone Adjustment',
-    description: 'Maintain professional and friendly communication style',
-    status: 'active',
-    priority: 'medium',
-    triggers: 8900,
-    category: 'Quality',
-    lastTriggered: '5m ago',
-  },
-  {
-    id: 'rl-004',
-    name: 'Error Handling',
-    description: 'Gracefully handle unexpected inputs and errors',
-    status: 'active',
-    priority: 'high',
-    triggers: 450,
-    category: 'Reliability',
-    lastTriggered: '1d ago',
-  },
-  {
-    id: 'rl-005',
-    name: 'Context Retention',
-    description: 'Remember conversation context across interactions',
-    status: 'testing',
-    priority: 'medium',
-    triggers: 120,
-    category: 'Intelligence',
-    lastTriggered: '30m ago',
-  },
-]
+
 
 export default function AgentRulesPage() {
   const { sidebarCollapsed } = useDashboardStore()
+  const router = useRouter()
+  const [rules, setRules] = useState<Rule[]>(initialRules)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [newRule, setNewRule] = useState<Partial<Rule>>({
+    name: '',
+    description: '',
+    category: 'Safety',
+    priority: 'medium',
+    status: 'active',
+    triggers: 0,
+    lastTriggered: 'Never'
+  })
+
+  const handleCreateRule = () => {
+    if (!newRule.name || !newRule.description) return
+
+    const rule: Rule = {
+      id: `rl-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+      name: newRule.name,
+      description: newRule.description,
+      category: newRule.category as any,
+      priority: newRule.priority as any,
+      status: 'active',
+      triggers: 0,
+      lastTriggered: 'Never'
+    }
+
+    setRules([...rules, rule])
+    setIsDialogOpen(false)
+    setNewRule({
+      name: '',
+      description: '',
+      category: 'Safety',
+      priority: 'medium',
+      status: 'active',
+      triggers: 0,
+      lastTriggered: 'Never'
+    })
+  }
 
   return (
     <div
@@ -89,10 +99,80 @@ export default function AgentRulesPage() {
               Enforcing {rules.length} active behavioral protocols
             </p>
           </div>
-          <Button className="rounded-none h-10 px-6">
-            <Plus className="w-4 h-4 mr-2" />
-            New Rule
-          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="rounded-none h-10 px-6">
+                <Plus className="w-4 h-4 mr-2" />
+                New Rule
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Create New Policy Rule</DialogTitle>
+                <DialogDescription>
+                  Define a new behavioral protocol for your agents.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Rule Name</Label>
+                  <Input
+                    id="name"
+                    value={newRule.name}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewRule({ ...newRule, name: e.target.value })}
+                    placeholder="e.g., Tone Consistency"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="category">Category</Label>
+                  <Select
+                    value={newRule.category}
+                    onValueChange={(v) => setNewRule({ ...newRule, category: v as any })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Safety">Safety</SelectItem>
+                      <SelectItem value="Security">Security</SelectItem>
+                      <SelectItem value="Quality">Quality</SelectItem>
+                      <SelectItem value="Reliability">Reliability</SelectItem>
+                      <SelectItem value="Intelligence">Intelligence</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="priority">Priority</Label>
+                  <Select
+                    value={newRule.priority}
+                    onValueChange={(v) => setNewRule({ ...newRule, priority: v as any })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="critical">Critical</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={newRule.description}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewRule({ ...newRule, description: e.target.value })}
+                    placeholder="Describe what this rule enforces..."
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleCreateRule}>Create Rule</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Stats Row */}
@@ -181,7 +261,11 @@ export default function AgentRulesPage() {
                 </thead>
                 <tbody className="divide-y divide-border/50">
                   {rules.map((rule) => (
-                    <tr key={rule.id} className="group hover:bg-muted/20 transition-colors">
+                    <tr
+                      key={rule.id}
+                      onClick={() => router.push(`/agent-rules/${rule.id}`)}
+                      className="group hover:bg-muted/20 transition-colors cursor-pointer"
+                    >
                       <td className="p-4">
                         <div className="flex items-start gap-3">
                           <div className="mt-1">

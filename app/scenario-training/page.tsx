@@ -28,172 +28,78 @@ import {
   Clock,
   Target
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { initialScenarios, Scenario } from './data'
+import { useState } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 
-interface Scenario {
-  id: string
-  name: string
-  type: 'pre-made' | 'discovered'
-  frequency: 'common' | 'uncommon' | 'rare'
-  description: string
-  trigger: string
-  workflowResponse: string[]
-  successRate: number
-  timesEncountered: number
-  lastSeen: string
-}
 
-const scenarios: Scenario[] = [
-  // Pre-made scenarios (client-provided)
-  {
-    id: 'SC-001',
-    name: 'Candidate No Response',
-    type: 'pre-made',
-    frequency: 'common',
-    description: 'Candidate does not respond to initial outreach email within 48 hours',
-    trigger: 'No email reply after 48 hours',
-    workflowResponse: [
-      'Send follow-up email after 48h',
-      'Escalate to recruiter after 7 days',
-      'Mark as inactive after 14 days'
-    ],
-    successRate: 87,
-    timesEncountered: 142,
-    lastSeen: '2 hours ago'
-  },
-  {
-    id: 'SC-002',
-    name: 'Salary Inquiry Pre-Interview',
-    type: 'pre-made',
-    frequency: 'common',
-    description: 'Candidate asks about salary range before scheduling interview',
-    trigger: 'Email contains keywords: "salary", "compensation", "pay"',
-    workflowResponse: [
-      'Provide salary range from job posting',
-      'Mention additional benefits',
-      'Schedule call with recruiter to discuss details'
-    ],
-    successRate: 92,
-    timesEncountered: 89,
-    lastSeen: '5 hours ago'
-  },
-  {
-    id: 'SC-003',
-    name: 'Employment Gap Detected',
-    type: 'pre-made',
-    frequency: 'uncommon',
-    description: 'Resume shows gap in employment history > 6 months',
-    trigger: 'Resume parser detects employment gap',
-    workflowResponse: [
-      'Flag for recruiter review',
-      'Do not auto-reject',
-      'Add note to candidate profile'
-    ],
-    successRate: 94,
-    timesEncountered: 34,
-    lastSeen: '1 day ago'
-  },
-  {
-    id: 'SC-004',
-    name: 'Weekend Contact Attempt',
-    type: 'pre-made',
-    frequency: 'rare',
-    description: 'System attempts to contact candidate on weekend (violates business rules)',
-    trigger: 'Scheduled action falls on Saturday/Sunday',
-    workflowResponse: [
-      'Automatically reschedule to Monday 9am',
-      'Log compliance event',
-      'Notify compliance team if recurring'
-    ],
-    successRate: 100,
-    timesEncountered: 12,
-    lastSeen: '3 days ago'
-  },
-
-  // Discovered scenarios (learned during operation)
-  {
-    id: 'SC-D001',
-    name: 'Duplicate Application',
-    type: 'discovered',
-    frequency: 'uncommon',
-    description: 'Candidate applies to same position twice within 7 days',
-    trigger: 'Email/name match detected within 7 day window',
-    workflowResponse: [
-      'Merge duplicate applications',
-      'Use most recent resume',
-      'Send single response email'
-    ],
-    successRate: 91,
-    timesEncountered: 23,
-    lastSeen: '6 hours ago'
-  },
-  {
-    id: 'SC-D002',
-    name: 'Out-of-Office Auto-Reply',
-    type: 'discovered',
-    frequency: 'common',
-    description: 'Candidate email triggers out-of-office auto-reply',
-    trigger: 'Email reply contains "out of office", "OOO", "vacation"',
-    workflowResponse: [
-      'Do not mark as response',
-      'Extract return date if available',
-      'Reschedule follow-up to return date + 1 day'
-    ],
-    successRate: 88,
-    timesEncountered: 67,
-    lastSeen: '1 hour ago'
-  },
-  {
-    id: 'SC-D003',
-    name: 'Competitor Company Application',
-    type: 'discovered',
-    frequency: 'rare',
-    description: 'Candidate currently employed at direct competitor company',
-    trigger: 'Current employer matches competitor list',
-    workflowResponse: [
-      'Flag for confidentiality review',
-      'Add non-compete check task',
-      'Require legal team approval before offer'
-    ],
-    successRate: 96,
-    timesEncountered: 8,
-    lastSeen: '2 days ago'
-  },
-  {
-    id: 'SC-D004',
-    name: 'Resume Format Parsing Failure',
-    type: 'discovered',
-    frequency: 'uncommon',
-    description: 'Resume parser fails on scanned PDF or unusual format',
-    trigger: 'Resume Parser agent returns error',
-    workflowResponse: [
-      'Route to Document Parser agent',
-      'If still fails, flag for manual review',
-      'Notify candidate of processing delay'
-    ],
-    successRate: 85,
-    timesEncountered: 18,
-    lastSeen: '8 hours ago'
-  },
-  {
-    id: 'SC-D005',
-    name: 'Interview Scheduling Conflict',
-    type: 'discovered',
-    frequency: 'common',
-    description: 'Proposed interview time conflicts with existing meeting',
-    trigger: 'Calendar API returns "busy" for proposed time',
-    workflowResponse: [
-      'Find next available 3 slots',
-      'Send alternatives to candidate',
-      'Mark as "scheduling in progress"'
-    ],
-    successRate: 93,
-    timesEncountered: 56,
-    lastSeen: '30 minutes ago'
-  }
-]
 
 export default function ScenarioTrainingPage() {
   const { sidebarCollapsed } = useDashboardStore()
+  const router = useRouter()
+  const [scenarios, setScenarios] = useState<Scenario[]>(initialScenarios)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [newScenario, setNewScenario] = useState<Partial<Scenario>>({
+    name: '',
+    description: '',
+    trigger: '',
+    type: 'pre-made',
+    frequency: 'common',
+    workflowResponse: [],
+    successRate: 0,
+    timesEncountered: 0,
+    lastSeen: 'Never'
+  })
+
+  const handleCreateScenario = () => {
+    if (!newScenario.name || !newScenario.description) return
+
+    const scenario: Scenario = {
+      id: `SC-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+      name: newScenario.name,
+      description: newScenario.description,
+      trigger: newScenario.trigger || '',
+      type: newScenario.type as any,
+      frequency: newScenario.frequency as any,
+      workflowResponse: [],
+      successRate: 0,
+      timesEncountered: 0,
+      lastSeen: 'Never'
+    }
+
+    setScenarios([...scenarios, scenario])
+    setIsDialogOpen(false)
+    setNewScenario({
+      name: '',
+      description: '',
+      trigger: '',
+      type: 'pre-made',
+      frequency: 'common',
+      workflowResponse: [],
+      successRate: 0,
+      timesEncountered: 0,
+      lastSeen: 'Never'
+    })
+  }
 
   const preMadeScenarios = scenarios.filter(s => s.type === 'pre-made')
   const discoveredScenarios = scenarios.filter(s => s.type === 'discovered')
@@ -230,10 +136,83 @@ export default function ScenarioTrainingPage() {
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button className="rounded-none h-10 px-6">
-              <Upload className="w-4 h-4 mr-2" />
-              Import Scenarios
+            <Button className="rounded-none h-10 px-6" onClick={() => setIsDialogOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              New Scenario
             </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Create New Scenario</DialogTitle>
+                  <DialogDescription>
+                    Define a new training scenario for your agents.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Scenario Name</Label>
+                    <Input
+                      id="name"
+                      value={newScenario.name}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewScenario({ ...newScenario, name: e.target.value })}
+                      placeholder="e.g., Unexpected User Input"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="type">Type</Label>
+                    <Select
+                      value={newScenario.type}
+                      onValueChange={(v) => setNewScenario({ ...newScenario, type: v as any })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pre-made">Pre-made</SelectItem>
+                        <SelectItem value="discovered">Discovered</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="frequency">Frequency</Label>
+                    <Select
+                      value={newScenario.frequency}
+                      onValueChange={(v) => setNewScenario({ ...newScenario, frequency: v as any })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select frequency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="common">Common</SelectItem>
+                        <SelectItem value="uncommon">Uncommon</SelectItem>
+                        <SelectItem value="rare">Rare</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="trigger">Trigger Condition</Label>
+                    <Input
+                      id="trigger"
+                      value={newScenario.trigger}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewScenario({ ...newScenario, trigger: e.target.value })}
+                      placeholder="e.g., User says 'Cancel'"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={newScenario.description}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewScenario({ ...newScenario, description: e.target.value })}
+                      placeholder="Describe the scenario..."
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button onClick={handleCreateScenario}>Create Scenario</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
@@ -328,7 +307,11 @@ export default function ScenarioTrainingPage() {
                 </thead>
                 <tbody className="divide-y divide-border/50">
                   {scenarios.map((scenario) => (
-                    <tr key={scenario.id} className="group hover:bg-muted/20 transition-colors">
+                    <tr
+                      key={scenario.id}
+                      onClick={() => router.push(`/scenario-training/${scenario.id}`)}
+                      className="group hover:bg-muted/20 transition-colors cursor-pointer"
+                    >
                       <td className="p-4">
                         <div className="flex items-start gap-3">
                           <div className="mt-1">

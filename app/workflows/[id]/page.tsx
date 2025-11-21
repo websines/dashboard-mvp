@@ -11,12 +11,14 @@ import {
   Bot, ArrowRight, CheckCircle2, Clock, AlertCircle, Play, Pause,
   TrendingUp, Zap, Activity, MessageSquare, ChevronRight, RefreshCw,
   GitBranch, Sparkles, Eye, Layers, Users, Brain, Mail, FileText,
-  Calendar, Shield, Webhook, Target, BrainCircuit
+  Calendar, Shield, Webhook, Target, BrainCircuit, Settings2, X
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { workflows, WorkflowTask, WorkflowNode, WorkflowEdge } from '../data'
+import { notFound } from 'next/navigation'
 
-// Kanban board data
+// Kanban board columns
 const kanbanColumns = [
   { id: 'backlog', title: 'Backlog', color: 'text-gray-400' },
   { id: 'in_progress', title: 'In Progress', color: 'text-blue-400' },
@@ -24,17 +26,7 @@ const kanbanColumns = [
   { id: 'done', title: 'Done', color: 'text-green-400' },
 ]
 
-const tasks = [
-  { id: 1, title: 'Verify email address', column: 'in_progress', assignee: 'Data Worker', priority: 'high', phase: 'analysis', dependencies: [] },
-  { id: 2, title: 'Validate company domain', column: 'in_progress', assignee: 'API Worker', priority: 'high', phase: 'analysis', dependencies: [1] },
-  { id: 3, title: 'Check credit score', column: 'review', assignee: 'Data Worker', priority: 'medium', phase: 'analysis', dependencies: [1] },
-  { id: 4, title: 'Update CRM record', column: 'backlog', assignee: null, priority: 'medium', phase: 'implementation', dependencies: [1, 2, 3] },
-  { id: 5, title: 'Send welcome email', column: 'backlog', assignee: null, priority: 'low', phase: 'implementation', dependencies: [4] },
-  { id: 6, title: 'Create user account', column: 'done', assignee: 'API Worker', priority: 'high', phase: 'implementation', dependencies: [] },
-  { id: 7, title: 'Assign account manager', column: 'done', assignee: 'Notification Worker', priority: 'medium', phase: 'validation', dependencies: [6] },
-]
-
-// Evolution history
+// Evolution history (Mock data for now, could be moved to data.ts later)
 const evolutionHistory = [
   { version: 'v1.0.0', date: 'Oct 15', accuracy: 62, branch: 'main' },
   { version: 'v1.5.2', date: 'Oct 22', accuracy: 71, branch: 'main' },
@@ -42,13 +34,6 @@ const evolutionHistory = [
   { version: 'v2.8.1', date: 'Nov 5', accuracy: 85, branch: 'experimental' },
   { version: 'v3.0.0', date: 'Nov 12', accuracy: 91, branch: 'main' },
   { version: 'v3.2.1', date: 'Nov 15', accuracy: 94, branch: 'main' },
-]
-
-// Workflow phases
-const phases = [
-  { id: 'analysis', name: 'Analysis', description: 'Gather data & validate requirements', status: 'active', progress: 75 },
-  { id: 'implementation', name: 'Implementation', description: 'Execute planned actions', status: 'pending', progress: 0 },
-  { id: 'validation', name: 'Validation', description: 'Verify results & quality', status: 'completed', progress: 100 },
 ]
 
 const recentActivity = [
@@ -59,13 +44,19 @@ const recentActivity = [
   { id: 5, time: '15s ago', agent: 'Evolution Engine', action: 'Detected optimization opportunity in Task #1', type: 'optimize' },
 ]
 
-export default function WorkflowDetailPage({ params }: { params: { id: string } }) {
+export default function WorkflowDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { sidebarCollapsed } = useDashboardStore()
-  const [selectedPhase, setSelectedPhase] = React.useState<string | null>(null)
+  const { id } = React.use(params)
+  const workflow = workflows.find(w => w.id === id)
   const [activeTab, setActiveTab] = React.useState<'execution' | 'design'>('execution')
+  const [selectedItem, setSelectedItem] = React.useState<{ type: 'task' | 'node', data: any } | null>(null)
+
+  if (!workflow) {
+    return notFound()
+  }
 
   const getTasksByColumn = (columnId: string) => {
-    return tasks.filter(task => task.column === columnId)
+    return workflow.tasks.filter(task => task.column === columnId)
   }
 
   const getPriorityColor = (priority: string) => {
@@ -86,6 +77,26 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
     }
   }
 
+  const getNodeIcon = (type: WorkflowNode['type']) => {
+    switch (type) {
+      case 'trigger': return Play
+      case 'action': return Zap
+      case 'condition': return GitBranch
+      case 'agent': return Bot
+      default: return Activity
+    }
+  }
+
+  const getNodeColor = (type: WorkflowNode['type']) => {
+    switch (type) {
+      case 'trigger': return 'border-green-500/50 bg-green-500/10 text-green-400'
+      case 'action': return 'border-blue-500/50 bg-blue-500/10 text-blue-400'
+      case 'condition': return 'border-orange-500/50 bg-orange-500/10 text-orange-400'
+      case 'agent': return 'border-purple-500/50 bg-purple-500/10 text-purple-400'
+      default: return 'border-gray-500/50 bg-gray-500/10 text-gray-400'
+    }
+  }
+
   return (
     <div
       className={cn(
@@ -96,15 +107,15 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
       )}
     >
       <Header
-        title="Customer Onboarding"
+        title={workflow.name}
         subtitle="Self-Improving"
         breadcrumbs={[
           { label: 'Workflows', href: '/workflows' },
-          { label: 'Customer Onboarding' }
+          { label: workflow.name }
         ]}
       />
 
-      <main className="mt-16 p-4 sm:p-6 lg:p-8 max-w-[1800px] mx-auto">
+      <main className="mt-16 p-4 sm:p-6 lg:p-8 max-w-[1800px] mx-auto relative">
         {/* Top Stats Row */}
         <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
@@ -113,7 +124,7 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Current Version</p>
-                    <p className="text-xl font-bold text-primary">v3.2.1</p>
+                    <p className="text-xl font-bold text-primary">{workflow.version}</p>
                   </div>
                   <GitBranch className="h-8 w-8 text-primary/40" />
                 </div>
@@ -126,10 +137,12 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Accuracy</p>
-                    <p className="text-xl font-bold text-green-400">94%</p>
+                    <p className="text-xs text-muted-foreground mb-1">Success Rate</p>
+                    <p className={cn("text-xl font-bold", workflow.successRate >= 90 ? "text-green-400" : "text-yellow-400")}>
+                      {workflow.successRate}%
+                    </p>
                   </div>
-                  <TrendingUp className="h-8 w-8 text-green-400/40" />
+                  <TrendingUp className={cn("h-8 w-8", workflow.successRate >= 90 ? "text-green-400/40" : "text-yellow-400/40")} />
                 </div>
               </CardContent>
             </Card>
@@ -141,7 +154,7 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Active Tasks</p>
-                    <p className="text-xl font-bold">7</p>
+                    <p className="text-xl font-bold">{workflow.tasks.length}</p>
                   </div>
                   <Layers className="h-8 w-8 text-blue-400/40" />
                 </div>
@@ -155,7 +168,7 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Agents</p>
-                    <p className="text-xl font-bold">3 Workers</p>
+                    <p className="text-xl font-bold">{workflow.agents.length} Workers</p>
                   </div>
                   <Users className="h-8 w-8 text-purple-400/40" />
                 </div>
@@ -163,67 +176,6 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
             </Card>
           </motion.div>
         </div>
-
-        {/* Phase Indicators */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-6"
-        >
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Layers className="h-5 w-5 text-primary" />
-                Workflow Phases
-              </CardTitle>
-              <CardDescription>Multi-stage execution pipeline with phase guards</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {phases.map((phase, index) => (
-                  <motion.div
-                    key={phase.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 + index * 0.1 }}
-                    className={cn(
-                      "p-4 rounded-xl border-2 transition-all cursor-pointer",
-                      phase.status === 'active' && "border-primary/50 bg-primary/5 shadow-[0_0_20px_rgba(103,232,249,0.2)]",
-                      phase.status === 'completed' && "border-green-500/50 bg-green-500/5",
-                      phase.status === 'pending' && "border-border/40 bg-accent/20"
-                    )}
-                    onClick={() => setSelectedPhase(phase.id)}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold flex items-center gap-2">
-                        {phase.status === 'active' && <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />}
-                        {phase.status === 'completed' && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                        {phase.status === 'pending' && <Clock className="h-4 w-4 text-muted-foreground" />}
-                        {phase.name}
-                      </h3>
-                      <span className="text-xs text-muted-foreground">{phase.progress}%</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-3">{phase.description}</p>
-                    <div className="h-1.5 bg-accent rounded-full overflow-hidden">
-                      <motion.div
-                        className={cn(
-                          "h-full",
-                          phase.status === 'active' && "bg-gradient-to-r from-primary to-blue-500",
-                          phase.status === 'completed' && "bg-green-500",
-                          phase.status === 'pending' && "bg-muted"
-                        )}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${phase.progress}%` }}
-                        transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
         {/* Tabs */}
         <motion.div
@@ -272,70 +224,76 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="border-green-500/30 text-green-400">
                       <Sparkles className="h-4 w-4 mr-2" />
-                    Evolution: +32%
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {kanbanColumns.map((column, colIndex) => (
-                  <div key={column.id} className="space-y-3">
-                    <div className={cn("flex items-center gap-2 mb-3")}>
-                      <div className={cn("h-2 w-2 rounded-full", column.color.replace('text-', 'bg-'))} />
-                      <h3 className={cn("font-semibold text-sm", column.color)}>{column.title}</h3>
-                      <Badge variant="outline" className="text-xs">
-                        {getTasksByColumn(column.id).length}
-                      </Badge>
-                    </div>
-
-                    <div className="space-y-2 min-h-[200px]">
-                      <AnimatePresence>
-                        {getTasksByColumn(column.id).map((task, taskIndex) => (
-                          <motion.div
-                            key={task.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            transition={{ delay: 0.6 + colIndex * 0.1 + taskIndex * 0.05 }}
-                            whileHover={{ scale: 1.02, y: -2 }}
-                            className="p-3 rounded-lg bg-card/60 backdrop-blur-sm border border-border/40 hover:border-primary/40 transition-all cursor-pointer"
-                          >
-                            <div className="flex items-start justify-between mb-2">
-                              <span className="text-xs font-mono text-muted-foreground">#{task.id}</span>
-                              <Badge variant="outline" className={cn("text-[10px] h-5 border", getPriorityColor(task.priority))}>
-                                {task.priority}
-                              </Badge>
-                            </div>
-
-                            <p className="text-sm font-medium mb-2">{task.title}</p>
-
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <Badge variant="secondary" className={cn("text-[10px] h-5", getPhaseColor(task.phase))}>
-                                {task.phase}
-                              </Badge>
-                              {task.assignee && (
-                                <Badge variant="outline" className="text-[10px] h-5 flex items-center gap-1">
-                                  <Bot className="h-3 w-3" />
-                                  {task.assignee}
-                                </Badge>
-                              )}
-                              {task.dependencies.length > 0 && (
-                                <Badge variant="outline" className="text-[10px] h-5 flex items-center gap-1 border-yellow-500/30 text-yellow-400">
-                                  <ArrowRight className="h-3 w-3" />
-                                  {task.dependencies.length}
-                                </Badge>
-                              )}
-                            </div>
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </div>
+                      Evolution: +32%
+                    </Button>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {kanbanColumns.map((column, colIndex) => (
+                    <div key={column.id} className="space-y-3">
+                      <div className={cn("flex items-center gap-2 mb-3")}>
+                        <div className={cn("h-2 w-2 rounded-full", column.color.replace('text-', 'bg-'))} />
+                        <h3 className={cn("font-semibold text-sm", column.color)}>{column.title}</h3>
+                        <Badge variant="outline" className="text-xs">
+                          {getTasksByColumn(column.id).length}
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-2 min-h-[200px]">
+                        <AnimatePresence>
+                          {getTasksByColumn(column.id).map((task, taskIndex) => (
+                            <motion.div
+                              key={task.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.8 }}
+                              transition={{ delay: 0.1 * taskIndex }}
+                              whileHover={{ scale: 1.02, y: -2 }}
+                              onClick={() => setSelectedItem({ type: 'task', data: task })}
+                              className="p-3 rounded-lg bg-card/60 backdrop-blur-sm border border-border/40 hover:border-primary/40 transition-all cursor-pointer"
+                            >
+                              <div className="flex items-start justify-between mb-2">
+                                <span className="text-xs font-mono text-muted-foreground">#{task.id}</span>
+                                <Badge variant="outline" className={cn("text-[10px] h-5 border", getPriorityColor(task.priority))}>
+                                  {task.priority}
+                                </Badge>
+                              </div>
+
+                              <p className="text-sm font-medium mb-2">{task.title}</p>
+
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge variant="secondary" className={cn("text-[10px] h-5", getPhaseColor(task.phase))}>
+                                  {task.phase}
+                                </Badge>
+                                {task.assignee && (
+                                  <Badge variant="outline" className="text-[10px] h-5 flex items-center gap-1">
+                                    <Bot className="h-3 w-3" />
+                                    {task.assignee}
+                                  </Badge>
+                                )}
+                                {task.dependencies.length > 0 && (
+                                  <Badge variant="outline" className="text-[10px] h-5 flex items-center gap-1 border-yellow-500/30 text-yellow-400">
+                                    <ArrowRight className="h-3 w-3" />
+                                    {task.dependencies.length}
+                                  </Badge>
+                                )}
+                              </div>
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+                        {getTasksByColumn(column.id).length === 0 && (
+                          <div className="h-24 border-2 border-dashed border-muted/20 rounded-lg flex items-center justify-center text-xs text-muted-foreground">
+                            No tasks
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           ) : (
             // Workflow Design View
             <Card className="border-primary/20">
@@ -351,252 +309,79 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
                   <div className="flex gap-2">
                     <Badge variant="outline" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
                       <Sparkles className="h-3 w-3 mr-1" />
-                      3 autonomous changes
+                      Autonomous Mode
                     </Badge>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="relative min-h-[600px] bg-gradient-to-br from-accent/20 to-transparent rounded-xl border border-border/40 p-8 overflow-x-auto">
-                  {/* Workflow Nodes */}
-                  <div className="flex flex-col gap-12 min-w-[1200px]">
+                <div className="relative min-h-[600px] bg-gradient-to-br from-accent/20 to-transparent rounded-xl border border-border/40 p-8 overflow-hidden">
+                  <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
 
-                    {/* Trigger Node */}
-                    <div className="flex justify-center">
+                  {/* Render Edges */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    {workflow.edges.map((edge) => {
+                      const sourceNode = workflow.nodes.find(n => n.id === edge.source)
+                      const targetNode = workflow.nodes.find(n => n.id === edge.target)
+                      if (!sourceNode || !targetNode) return null
+
+                      return (
+                        <g key={edge.id}>
+                          <line
+                            x1={sourceNode.x + 100} // Assuming node width ~200
+                            y1={sourceNode.y + 60}  // Assuming node height ~80
+                            x2={targetNode.x + 100}
+                            y2={targetNode.y}
+                            stroke={edge.type === 'success' ? '#22c55e' : edge.type === 'failure' ? '#ef4444' : '#64748b'}
+                            strokeWidth="2"
+                            strokeDasharray="4"
+                            className="opacity-50"
+                          />
+                          {edge.label && (
+                            <text
+                              x={(sourceNode.x + targetNode.x + 200) / 2}
+                              y={(sourceNode.y + targetNode.y + 60) / 2}
+                              fill="currentColor"
+                              className="text-xs fill-muted-foreground"
+                              textAnchor="middle"
+                            >
+                              {edge.label}
+                            </text>
+                          )}
+                        </g>
+                      )
+                    })}
+                  </svg>
+
+                  {/* Render Nodes */}
+                  {workflow.nodes.map((node) => {
+                    const Icon = getNodeIcon(node.type)
+                    return (
                       <motion.div
+                        key={node.id}
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="relative"
+                        className="absolute w-[200px]"
+                        style={{ left: node.x, top: node.y }}
+                        onClick={() => setSelectedItem({ type: 'node', data: node })}
                       >
-                        <div className="px-6 py-4 rounded-xl border-2 border-green-500/50 bg-green-500/10 shadow-lg shadow-green-500/20">
+                        <div className={cn(
+                          "px-4 py-3 rounded-xl border-2 shadow-lg transition-all hover:scale-105 cursor-pointer bg-background",
+                          getNodeColor(node.type)
+                        )}>
                           <div className="flex items-center gap-3">
-                            <Play className="h-5 w-5 text-green-400" />
+                            <Icon className="h-5 w-5" />
                             <div>
-                              <div className="font-semibold text-sm">Trigger: New Customer</div>
-                              <div className="text-xs text-muted-foreground">Webhook / API Call</div>
+                              <div className="font-semibold text-sm">{node.title}</div>
+                              {node.subtitle && (
+                                <div className="text-xs opacity-80">{node.subtitle}</div>
+                              )}
                             </div>
-                          </div>
-                        </div>
-                        {/* Connection line down */}
-                        <div className="absolute left-1/2 -translate-x-1/2 top-full h-12 w-0.5 bg-gradient-to-b from-green-500/50 to-purple-500/50" />
-                      </motion.div>
-                    </div>
-
-                    {/* Planner Node */}
-                    <div className="flex justify-center">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.1 }}
-                        className="relative"
-                      >
-                        <div className="px-6 py-4 rounded-xl border-2 border-purple-500/50 bg-purple-500/10 shadow-lg shadow-purple-500/20">
-                          <div className="flex items-center gap-3">
-                            <Brain className="h-5 w-5 text-purple-400" />
-                            <div>
-                              <div className="font-semibold text-sm">Task Planner Agent</div>
-                              <div className="text-xs text-muted-foreground">ROMA decomposition → atomic tasks</div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="absolute left-1/2 -translate-x-1/2 top-full h-12 w-0.5 bg-gradient-to-b from-purple-500/50 to-cyan-500/50" />
-                      </motion.div>
-                    </div>
-
-                    {/* Supervisor Node */}
-                    <div className="flex justify-center">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="relative"
-                      >
-                        <div className="px-8 py-5 rounded-xl border-2 border-cyan-500/50 bg-gradient-to-br from-cyan-500/20 via-purple-500/10 to-transparent shadow-xl shadow-cyan-500/30">
-                          <div className="flex items-center gap-3">
-                            <div className="relative">
-                              <BrainCircuit className="h-6 w-6 text-cyan-400" />
-                              <Sparkles className="h-3 w-3 text-cyan-400 absolute -top-1 -right-1 animate-pulse" />
-                            </div>
-                            <div>
-                              <div className="font-semibold">Autonomous Supervisor Agent</div>
-                              <div className="text-xs text-cyan-300">Orchestrates workers • Self-modifying</div>
-                            </div>
-                          </div>
-                        </div>
-                        {/* Connection lines to workers */}
-                        <div className="absolute left-1/2 -translate-x-1/2 top-full h-12 w-0.5 bg-gradient-to-b from-cyan-500/50 to-transparent" />
-                        <div className="absolute left-1/2 -translate-x-1/2 top-full h-12 w-[300px] border-t-0 border-l-2 border-r-2 border-b-0 border-cyan-500/30 rounded-t-none" style={{ left: '50%', transform: 'translateX(-50%)' }} />
-                      </motion.div>
-                    </div>
-
-                    {/* Worker Nodes Row */}
-                    <div className="flex justify-center gap-8 relative">
-                      {/* Resume Parser */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="flex flex-col items-center"
-                      >
-                        <div className="h-12 w-0.5 bg-gradient-to-b from-transparent to-green-500/50 mb-0" />
-                        <div className="px-5 py-3 rounded-xl border-2 border-green-500/50 bg-green-500/10 shadow-lg">
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-green-400" />
-                            <div>
-                              <div className="font-semibold text-sm">Resume Parser</div>
-                              <div className="text-xs text-muted-foreground">Extract data</div>
-                            </div>
-                          </div>
-                        </div>
-                        {/* Connection down */}
-                        <div className="h-8 w-0.5 bg-gradient-to-b from-green-500/50 to-orange-500/50 mt-0" />
-                      </motion.div>
-
-                      {/* Email Sender - Modified by Supervisor */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.35 }}
-                        className="flex flex-col items-center"
-                      >
-                        <div className="h-12 w-0.5 bg-gradient-to-b from-transparent to-green-500/50 mb-0" />
-                        <div className="relative px-5 py-3 rounded-xl border-2 border-green-500/50 bg-green-500/10 shadow-lg ring-2 ring-cyan-500/30 ring-offset-2 ring-offset-background">
-                          <Badge variant="outline" className="absolute -top-2 -right-2 bg-cyan-500/20 text-cyan-400 border-cyan-500/30 text-xs">
-                            <Sparkles className="h-2.5 w-2.5 mr-1" />
-                            Modified
-                          </Badge>
-                          <div className="flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-green-400" />
-                            <div>
-                              <div className="font-semibold text-sm">Email Sender</div>
-                              <div className="text-xs text-cyan-300">Tone: Professional</div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="h-8 w-0.5 bg-gradient-to-b from-green-500/50 to-orange-500/50 mt-0" />
-                      </motion.div>
-
-                      {/* Interview Scheduler */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="flex flex-col items-center"
-                      >
-                        <div className="h-12 w-0.5 bg-gradient-to-b from-transparent to-green-500/50 mb-0" />
-                        <div className="px-5 py-3 rounded-xl border-2 border-green-500/50 bg-green-500/10 shadow-lg">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-green-400" />
-                            <div>
-                              <div className="font-semibold text-sm">Interview Scheduler</div>
-                              <div className="text-xs text-muted-foreground">Calendar sync</div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="h-8 w-0.5 bg-gradient-to-b from-green-500/50 to-orange-500/50 mt-0" />
-                      </motion.div>
-
-                      {/* Document Parser - Added by Supervisor */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.45 }}
-                        className="flex flex-col items-center"
-                      >
-                        <div className="h-12 w-0.5 bg-gradient-to-b from-transparent to-green-500/50 mb-0" />
-                        <div className="relative px-5 py-3 rounded-xl border-2 border-cyan-500/50 bg-cyan-500/10 shadow-lg shadow-cyan-500/20">
-                          <Badge variant="outline" className="absolute -top-2 -right-2 bg-cyan-500/20 text-cyan-400 border-cyan-500/30 text-xs">
-                            <Sparkles className="h-2.5 w-2.5 mr-1" />
-                            Auto-created
-                          </Badge>
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-cyan-400" />
-                            <div>
-                              <div className="font-semibold text-sm">Document Parser</div>
-                              <div className="text-xs text-cyan-300">OCR + Layout</div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="h-8 w-0.5 bg-gradient-to-b from-cyan-500/50 to-orange-500/50 mt-0" />
-                      </motion.div>
-                    </div>
-
-                    {/* Compliance Check (Parallel) */}
-                    <div className="flex justify-center">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="relative"
-                      >
-                        <div className="px-6 py-4 rounded-xl border-2 border-orange-500/50 bg-orange-500/10 shadow-lg shadow-orange-500/20">
-                          <div className="flex items-center gap-3">
-                            <Shield className="h-5 w-5 text-orange-400" />
-                            <div>
-                              <div className="font-semibold text-sm">Compliance Checker</div>
-                              <div className="text-xs text-muted-foreground">Business rules validation</div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="absolute left-1/2 -translate-x-1/2 top-full h-12 w-0.5 bg-gradient-to-b from-orange-500/50 to-blue-500/50" />
-                      </motion.div>
-                    </div>
-
-                    {/* Decision Node */}
-                    <div className="flex justify-center">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.6 }}
-                        className="relative"
-                      >
-                        <div className="px-6 py-4 rounded-xl border-2 border-blue-500/50 bg-blue-500/10 shadow-lg shadow-blue-500/20 transform rotate-45">
-                          <div className="transform -rotate-45">
-                            <div className="flex items-center gap-2">
-                              <div className="font-semibold text-sm text-center">Approved?</div>
-                            </div>
-                          </div>
-                        </div>
-                        {/* Split paths */}
-                        <div className="absolute left-0 top-full translate-y-8 -translate-x-32">
-                          <div className="text-xs text-green-400 mb-1">✓ Yes</div>
-                          <div className="px-4 py-2 rounded-lg border border-green-500/50 bg-green-500/10 text-sm">
-                            Send Welcome Email
-                          </div>
-                        </div>
-                        <div className="absolute right-0 top-full translate-y-8 translate-x-32">
-                          <div className="text-xs text-red-400 mb-1">✗ No</div>
-                          <div className="px-4 py-2 rounded-lg border border-red-500/50 bg-red-500/10 text-sm">
-                            Escalate to Manager
                           </div>
                         </div>
                       </motion.div>
-                    </div>
-
-                  </div>
-
-                  {/* Legend */}
-                  <div className="mt-16 pt-6 border-t border-border/40">
-                    <div className="text-sm font-medium mb-3">Legend:</div>
-                    <div className="flex flex-wrap gap-4 text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded border-2 border-green-500/50 bg-green-500/10" />
-                        <span className="text-muted-foreground">Worker Agent</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded border-2 border-cyan-500/50 bg-cyan-500/10" />
-                        <span className="text-muted-foreground">Autonomous Change</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded border-2 border-orange-500/50 bg-orange-500/10" />
-                        <span className="text-muted-foreground">Validation</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded border-2 border-blue-500/50 bg-blue-500/10" />
-                        <span className="text-muted-foreground">Decision Node</span>
-                      </div>
-                    </div>
-                  </div>
+                    )
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -618,7 +403,7 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
                   <Sparkles className="h-5 w-5 text-primary" />
                   Self-Evolution Timeline
                 </CardTitle>
-                <CardDescription>62% → 94% accuracy improvement over 23 days</CardDescription>
+                <CardDescription>Accuracy improvement over time</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={280}>
@@ -653,28 +438,6 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
                     />
                   </LineChart>
                 </ResponsiveContainer>
-
-                {/* Version badges */}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {evolutionHistory.map((ver, idx) => (
-                    <motion.div
-                      key={ver.version}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.8 + idx * 0.05 }}
-                    >
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "border-primary/30",
-                          idx === evolutionHistory.length - 1 && "border-primary bg-primary/10"
-                        )}
-                      >
-                        {ver.version} · {ver.accuracy}%
-                      </Badge>
-                    </motion.div>
-                  ))}
-                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -729,6 +492,133 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
             </Card>
           </motion.div>
         </div>
+
+        {/* Details Panel */}
+        <AnimatePresence>
+          {selectedItem && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSelectedItem(null)}
+                className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="fixed right-0 top-0 h-full w-[400px] bg-background border-l border-border z-50 shadow-2xl p-6 overflow-y-auto"
+              >
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-xl font-bold">
+                    {selectedItem.type === 'task' ? 'Task Details' : 'Node Configuration'}
+                  </h2>
+                  <Button variant="ghost" size="icon" onClick={() => setSelectedItem(null)}>
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">Title</h3>
+                    <p className="text-lg font-medium">{selectedItem.data.title}</p>
+                    {selectedItem.data.subtitle && (
+                      <p className="text-sm text-muted-foreground">{selectedItem.data.subtitle}</p>
+                    )}
+                  </div>
+
+                  {selectedItem.type === 'task' && (
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Status</h3>
+                          <Badge variant="outline" className="capitalize">
+                            {selectedItem.data.column.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                        <div>
+                          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Priority</h3>
+                          <Badge variant="outline" className={cn("capitalize", getPriorityColor(selectedItem.data.priority))}>
+                            {selectedItem.data.priority}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">Assignee</h3>
+                        <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg border border-border">
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Bot className="h-4 w-4 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">{selectedItem.data.assignee || 'Unassigned'}</p>
+                            <p className="text-xs text-muted-foreground">Worker Agent</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">Dependencies</h3>
+                        {selectedItem.data.dependencies.length > 0 ? (
+                          <div className="space-y-2">
+                            {selectedItem.data.dependencies.map((depId: string) => (
+                              <div key={depId} className="flex items-center gap-2 text-sm p-2 bg-muted/20 rounded">
+                                <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                                <span>Task #{depId}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground italic">No dependencies</p>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {selectedItem.type === 'node' && (
+                    <>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">Type</h3>
+                        <Badge variant="secondary" className="capitalize">
+                          {selectedItem.data.type}
+                        </Badge>
+                      </div>
+
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">Configuration</h3>
+                        <div className="bg-muted/30 rounded-lg border border-border p-4 font-mono text-xs space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">ID:</span>
+                            <span>{selectedItem.data.id}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Position:</span>
+                            <span>{selectedItem.data.x}, {selectedItem.data.y}</span>
+                          </div>
+                          {selectedItem.data.config && Object.entries(selectedItem.data.config).map(([key, value]) => (
+                            <div key={key} className="flex justify-between">
+                              <span className="text-muted-foreground">{key}:</span>
+                              <span>{String(value)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-border">
+                  <Button className="w-full">
+                    <Settings2 className="w-4 h-4 mr-2" />
+                    Advanced Settings
+                  </Button>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   )
