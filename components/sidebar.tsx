@@ -50,15 +50,15 @@ const navigationSections = [
   {
     title: 'Knowledge',
     items: [
-      { name: 'Training', href: '/scenario-training', icon: FlaskConical },
-      { name: 'Knowledge Base', href: '/knowledge-base', icon: BookOpen },
+      { name: 'Scenario Library', href: '/scenarios', icon: BookOpen },
+      { name: 'Knowledge Base', href: '/knowledge-base', icon: Database },
     ]
   },
   {
     title: 'System',
     items: [
-      { name: 'Evolution', href: '/evolution', icon: TrendingUp },
       { name: 'Versions', href: '/versions', icon: GitBranch },
+      { name: 'Evolution Lab', href: '/evolution', icon: FlaskConical },
       { name: 'Settings', href: '/settings', icon: Settings },
     ]
   }

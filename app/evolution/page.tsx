@@ -1,154 +1,92 @@
 'use client'
 
-import * as React from 'react'
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { motion } from 'framer-motion'
 import {
+  FlaskConical,
+  Bot,
   TrendingUp,
-  Zap,
-  Brain,
-  Target,
-  CheckCircle2,
+  Activity,
   GitBranch,
+  Zap,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Play,
+  Pause,
+  RotateCcw,
+  Cpu,
   Sparkles,
   ArrowRight,
-  Clock,
-  AlertTriangle,
-  Package,
-  Activity,
-  FileText,
-  GitCommit,
-  GitPullRequest,
-  Terminal,
-  Code2
+  Split,
+  Layers,
+  Microscope,
+  Beaker,
+  ChevronRight
 } from 'lucide-react'
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
+import { motion } from 'framer-motion'
+import { useState } from 'react'
+import Link from 'next/link'
 
-const accuracyData = [
-  { date: 'Oct 15', accuracy: 62, version: 'v1.0.0' },
-  { date: 'Oct 20', accuracy: 68, version: 'v1.1.2' },
-  { date: 'Oct 25', accuracy: 74, version: 'v1.2.5' },
-  { date: 'Nov 1', accuracy: 81, version: 'v2.0.0' },
-  { date: 'Nov 5', accuracy: 87, version: 'v2.1.3' },
-  { date: 'Nov 10', accuracy: 91, version: 'v3.0.1' },
-  { date: 'Nov 15', accuracy: 94, version: 'v3.2.1' },
-]
-
-const errorRateData = [
-  { date: 'Oct 15', errors: 38 },
-  { date: 'Oct 20', errors: 32 },
-  { date: 'Oct 25', errors: 26 },
-  { date: 'Nov 1', errors: 19 },
-  { date: 'Nov 5', errors: 13 },
-  { date: 'Nov 10', errors: 9 },
-  { date: 'Nov 15', errors: 6 },
-]
-
-const symbolicLearningLogs = [
+// Mock Data for Evolution Agents
+const evolutionAgents = [
   {
-    id: 1,
-    timestamp: '2025-11-15 09:23',
-    change: 'Modified Email Sender tone',
-    reason: 'Detected 3 user complaints about casual language in professional context',
-    version: 'v3.2.1',
-    impact: '+2% user satisfaction',
-    type: 'agent_modification'
+    id: 'EA-001',
+    name: 'Sim Agent Alpha',
+    status: 'running',
+    task: 'Shadow Testing v2.3',
+    target: 'Customer Support Flow',
+    progress: 78,
+    metrics: { accuracy: '99.2%', latency: '45ms' }
   },
   {
-    id: 2,
-    timestamp: '2025-11-14 14:12',
-    change: 'Created Document Parser agent',
-    reason: 'Identified 15 failed tasks (12% failure rate) due to unstructured PDF parsing',
-    version: 'v3.2.0',
-    impact: '+12% success rate',
-    type: 'agent_creation'
+    id: 'EA-002',
+    name: 'A/B Agent Beta',
+    status: 'running',
+    task: 'Split Testing (50/50)',
+    target: 'Sales Outreach v4',
+    progress: 45,
+    metrics: { confidence: '92%', uplift: '+12%' }
   },
   {
-    id: 3,
-    timestamp: '2025-11-12 11:45',
-    change: 'Parallelized Resume Parse + Compliance Check',
-    reason: 'Analysis showed no dependency between tasks, average latency reduction potential: 40%',
-    version: 'v3.1.5',
-    impact: '-40% execution time',
-    type: 'workflow_optimization'
+    id: 'EA-003',
+    name: 'Distillation Bot',
+    status: 'idle',
+    task: 'Waiting for queue',
+    target: 'Invoice Processor',
+    progress: 0,
+    metrics: { compression: 'Pending', speedup: 'Pending' }
   },
   {
-    id: 4,
-    timestamp: '2025-11-10 16:30',
-    change: 'Removed Legacy Notifier agent',
-    reason: 'Agent unused for 50+ executions, redundant with Email Sender capabilities',
-    version: 'v3.1.0',
-    impact: '-$0.03 per run',
-    type: 'agent_removal'
-  },
-  {
-    id: 5,
-    timestamp: '2025-11-08 10:15',
-    change: 'Learned scenario: Duplicate Application',
-    reason: 'Detected pattern: 3 candidates applied twice within 7 days, created deduplication logic',
-    version: 'v3.0.8',
-    impact: '+8% data quality',
-    type: 'scenario_learning'
+    id: 'EA-004',
+    name: 'Regression Hunter',
+    status: 'analyzing',
+    task: 'Analyzing Failure Cases',
+    target: 'Legal Reviewer v1',
+    progress: 92,
+    metrics: { found: '3 edge cases', severity: 'Low' }
   }
 ]
 
-const experimentalBranches = [
-  {
-    name: 'experimental/faster-parsing',
-    description: 'Testing optimized model for resume parsing (improved speed + cost)',
-    status: 'testing',
-    accuracy: 96,
-    costPerRun: '$0.08',
-    improvement: '+2% accuracy, -$0.04 cost',
-    testExecutions: 47,
-    successRate: 96
-  },
-  {
-    name: 'experimental/email-templates',
-    description: 'New template engine for personalized emails',
-    status: 'merged',
-    accuracy: 97,
-    costPerRun: '$0.10',
-    improvement: '+3% user engagement',
-    testExecutions: 120,
-    successRate: 97
-  }
+const activeExperiments = [
+  { id: 'EXP-102', name: 'Tone Adjustment', type: 'A/B Test', status: 'Active', uplift: '+5.4%', confidence: '88%' },
+  { id: 'EXP-103', name: 'Context Window Optimization', type: 'Shadow Run', status: 'Passing', uplift: '0%', confidence: '99%' },
+  { id: 'EXP-104', name: 'Tool Usage Pruning', type: 'Simulation', status: 'Running', uplift: 'Pending', confidence: 'Pending' },
 ]
 
-const distillationReadiness = {
-  errorRate: 6,
-  daysStable: 23,
-  executions: 247,
-  complianceViolations: 0,
-  readyForDistillation: false,
-  blockers: [
-    { reason: 'Error rate above 5%', target: '< 5%', current: '6%' },
-    { reason: 'Stability period incomplete', target: '30 days', current: '23 days' }
-  ],
-  projectedReady: '7 days'
-}
-
-const workflowImprovements = [
-  { workflow: 'Customer Onboarding', initial: 62, current: 94, days: 23 },
-  { workflow: 'Support Ticket Triage', initial: 58, current: 97, days: 47 },
-  { workflow: 'Lead Qualification', initial: 71, current: 88, days: 18 },
-  { workflow: 'Document Processing', initial: 65, current: 79, days: 12 }
+const pipelineStages = [
+  { id: 'discovery', label: 'Discovery', count: 8, icon: Sparkles, color: 'text-cyan-500' },
+  { id: 'simulation', label: 'Simulation', count: 12, icon: FlaskConical, color: 'text-blue-500' },
+  { id: 'ab-testing', label: 'A/B Testing', count: 5, icon: Split, color: 'text-purple-500' },
+  { id: 'distillation', label: 'Distillation', count: 3, icon: Layers, color: 'text-amber-500' },
+  { id: 'production', label: 'Production', count: 142, icon: CheckCircle2, color: 'text-emerald-500' },
 ]
 
-export default function EvolutionPage() {
+export default function EvolutionLabPage() {
   const { sidebarCollapsed } = useDashboardStore()
 
   return (
@@ -160,355 +98,265 @@ export default function EvolutionPage() {
       )}
     >
       <Header
-        title="Evolution Engine"
-        subtitle="Self-Improvement Pipeline"
-        breadcrumbs={[{ label: 'System', href: '/evolution' }, { label: 'Evolution' }]}
+        title="Evolution Nexus"
+        subtitle="Autonomous Optimization Command Center"
+        breadcrumbs={[{ label: 'Evolution Nexus' }]}
       />
 
       <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
 
-        {/* Header Actions */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">System Evolution</h1>
-            <p className="text-sm text-muted-foreground font-mono mt-1">
-              Continuous self-improvement from 62% to 94% accuracy
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="rounded-none h-8 px-3 font-mono text-xs">
-              <Activity className="w-3 h-3 mr-2 text-emerald-500 animate-pulse" />
-              Learning Active
-            </Badge>
-            <Badge variant="outline" className="rounded-none h-8 px-3 font-mono text-xs">
-              v3.2.1
-            </Badge>
-          </div>
-        </div>
-
-        {/* Key Metrics */}
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Accuracy Gain</p>
-                <h3 className="text-2xl font-bold mt-1 text-emerald-500">+32%</h3>
-              </div>
-              <TrendingUp className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <p className="text-xs text-muted-foreground font-mono">62% → 94%</p>
-          </Card>
-
-          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Error Rate</p>
-                <h3 className="text-2xl font-bold mt-1 text-orange-500">6%</h3>
-              </div>
-              <AlertTriangle className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <p className="text-xs text-muted-foreground font-mono">Target: &lt; 5%</p>
-          </Card>
-
-          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Days Stable</p>
-                <h3 className="text-2xl font-bold mt-1">23</h3>
-              </div>
-              <Clock className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <p className="text-xs text-muted-foreground font-mono">Target: 30 days</p>
-          </Card>
-
-          <Card className="border-border bg-card rounded-none p-4 flex flex-col justify-between h-32">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Symbolic Changes</p>
-                <h3 className="text-2xl font-bold mt-1">127</h3>
-              </div>
-              <Sparkles className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <p className="text-xs text-muted-foreground font-mono">Auto-modifications</p>
-          </Card>
-        </div>
-
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="border-border bg-card rounded-none p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="font-bold text-lg flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-emerald-500" />
-                  Accuracy Trajectory
-                </h3>
-                <p className="text-xs text-muted-foreground font-mono mt-1">Model performance over time</p>
-              </div>
-            </div>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={accuracyData}>
-                  <defs>
-                    <linearGradient id="accuracyGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(150 100% 50%)" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="hsl(150 100% 50%)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 20%)" vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    stroke="hsl(0 0% 40%)"
-                    fontSize={10}
-                    tickLine={false}
-                    axisLine={false}
-                    dy={10}
-                  />
-                  <YAxis
-                    stroke="hsl(0 0% 40%)"
-                    fontSize={10}
-                    tickLine={false}
-                    axisLine={false}
-                    domain={[50, 100]}
-                    dx={-10}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(0 0% 10%)',
-                      border: '1px solid hsl(0 0% 20%)',
-                      borderRadius: '0px',
-                      fontSize: '12px'
-                    }}
-                    itemStyle={{ color: 'hsl(0 0% 90%)' }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="accuracy"
-                    stroke="hsl(150 100% 50%)"
-                    fill="url(#accuracyGradient)"
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          <Card className="border-border bg-card rounded-none p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="font-bold text-lg flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-orange-500" />
-                  Error Rate Reduction
-                </h3>
-                <p className="text-xs text-muted-foreground font-mono mt-1">Path to distillation threshold</p>
-              </div>
-            </div>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={errorRateData}>
-                  <defs>
-                    <linearGradient id="errorGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(10 80% 60%)" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="hsl(10 80% 60%)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 20%)" vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    stroke="hsl(0 0% 40%)"
-                    fontSize={10}
-                    tickLine={false}
-                    axisLine={false}
-                    dy={10}
-                  />
-                  <YAxis
-                    stroke="hsl(0 0% 40%)"
-                    fontSize={10}
-                    tickLine={false}
-                    axisLine={false}
-                    domain={[0, 40]}
-                    dx={-10}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(0 0% 10%)',
-                      border: '1px solid hsl(0 0% 20%)',
-                      borderRadius: '0px',
-                      fontSize: '12px'
-                    }}
-                    itemStyle={{ color: 'hsl(0 0% 90%)' }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="errors"
-                    stroke="hsl(10 80% 60%)"
-                    fill="url(#errorGradient)"
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </div>
-
-        {/* Symbolic Learning Logs */}
-        <Card className="border-border bg-card rounded-none overflow-hidden">
-          <div className="p-6 border-b border-border">
-            <h3 className="font-bold text-lg flex items-center gap-2">
-              <Brain className="w-5 h-5 text-foreground" />
-              Symbolic Learning Log
-            </h3>
-            <p className="text-xs text-muted-foreground font-mono mt-1">Autonomous supervisor decisions</p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-muted/30 border-b border-border text-xs uppercase font-mono text-muted-foreground">
-                <tr>
-                  <th className="p-4 font-medium w-[200px]">Type</th>
-                  <th className="p-4 font-medium">Change Description</th>
-                  <th className="p-4 font-medium">Reasoning</th>
-                  <th className="p-4 font-medium">Impact</th>
-                  <th className="p-4 font-medium text-right">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/50">
-                {symbolicLearningLogs.map((log) => (
-                  <tr key={log.id} className="group hover:bg-muted/20 transition-colors">
-                    <td className="p-4">
-                      <Badge variant="outline" className="rounded-none text-[10px] uppercase tracking-wider font-mono">
-                        {log.type.replace('_', ' ')}
-                      </Badge>
-                    </td>
-                    <td className="p-4 font-medium">{log.change}</td>
-                    <td className="p-4 text-muted-foreground text-xs">{log.reason}</td>
-                    <td className="p-4">
-                      <span className="text-xs font-mono text-emerald-500">{log.impact}</span>
-                    </td>
-                    <td className="p-4 text-right text-xs font-mono text-muted-foreground">
-                      {log.timestamp}
-                    </td>
-                  </tr>
+        {/* Supervisor Stream & Pipeline Status */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Supervisor Stream (HUD Style) */}
+          <Card className="lg:col-span-1 border-border bg-black/90 text-green-500 font-mono text-xs overflow-hidden flex flex-col h-[200px] relative shadow-[0_0_20px_rgba(0,255,0,0.1)]">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500/50 to-transparent opacity-50" />
+            <CardHeader className="p-3 border-b border-green-900/30 bg-green-900/10">
+              <CardTitle className="text-[10px] uppercase tracking-widest flex items-center gap-2 text-green-400">
+                <Activity className="w-3 h-3 animate-pulse" />
+                Supervisor Stream
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-3 flex-1 overflow-hidden relative">
+              <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(0,20,0,0.8)_100%)] pointer-events-none z-10" />
+              <div className="space-y-2 animate-in slide-in-from-bottom duration-1000">
+                {[
+                  "Allocating GPU Cluster A-9...",
+                  "Detected Drift in Scenario #492",
+                  "Optimizing Context Window...",
+                  "Agent Alpha: Shadow Run Initiated",
+                  "Distillation Queue: +3 Models",
+                  "Verifying Compliance Rules...",
+                  "System Load: 42% (Optimal)",
+                  "New Pattern Discovered: 'Refund Loop'",
+                  "Re-routing Traffic to Variant B"
+                ].map((log, i) => (
+                  <div key={i} className="flex gap-2 opacity-80 hover:opacity-100 transition-opacity">
+                    <span className="text-green-700">[{new Date().toLocaleTimeString()}]</span>
+                    <span>{log}</span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Experimental Branches */}
-          <Card className="border-border bg-card rounded-none p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="font-bold text-lg flex items-center gap-2">
-                  <GitBranch className="w-5 h-5 text-foreground" />
-                  Experimental Branches
-                </h3>
-                <p className="text-xs text-muted-foreground font-mono mt-1">A/B testing variations</p>
               </div>
-            </div>
-            <div className="space-y-4">
-              {experimentalBranches.map((branch) => (
-                <div key={branch.name} className="border border-border/50 bg-secondary/10 p-4 hover:border-foreground/30 transition-colors">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <GitCommit className="w-4 h-4 text-muted-foreground" />
-                      <span className="font-mono text-sm font-semibold">{branch.name}</span>
+            </CardContent>
+          </Card>
+
+          {/* Pipeline Status Visualization */}
+          <div className="lg:col-span-3 w-full overflow-x-auto pb-4 flex items-center">
+            <div className="w-full grid grid-cols-5 gap-4">
+              {pipelineStages.map((stage, i) => (
+                <div key={stage.id} className="relative group">
+                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -z-10" />
+                  {i === 0 && <div className="absolute top-1/2 left-0 w-1/2 h-0.5 bg-background -z-10" />}
+                  {i === pipelineStages.length - 1 && <div className="absolute top-1/2 right-0 w-1/2 h-0.5 bg-background -z-10" />}
+
+                  <Card className="relative border-border bg-card hover:border-primary/50 transition-colors cursor-pointer h-full">
+                    <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2">
+                      <div className={cn("p-2 rounded-full bg-background border border-border group-hover:scale-110 transition-transform duration-300 relative", stage.color)}>
+                        <stage.icon className="w-5 h-5" />
+                        <div className={cn("absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 animate-ping", stage.color.replace('text-', 'bg-'))} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{stage.label}</p>
+                        <p className="text-xl font-bold font-mono">{stage.count}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {i < pipelineStages.length - 1 && (
+                    <div className="absolute top-1/2 -right-2 transform -translate-y-1/2 z-10 bg-background rounded-full border border-border p-0.5">
+                      <ChevronRight className="w-3 h-3 text-muted-foreground" />
                     </div>
-                    <Badge variant={branch.status === 'merged' ? 'default' : 'secondary'} className="rounded-none text-[10px] uppercase tracking-wider">
-                      {branch.status}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-4">{branch.description}</p>
-                  <div className="grid grid-cols-4 gap-2 text-xs font-mono">
-                    <div>
-                      <span className="text-muted-foreground block">Accuracy</span>
-                      <span className="text-emerald-500">{branch.accuracy}%</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block">Cost</span>
-                      <span>{branch.costPerRun}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block">Tests</span>
-                      <span>{branch.testExecutions}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block">Delta</span>
-                      <span className="text-emerald-500">{branch.improvement}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
-          </Card>
-
-          {/* Distillation Readiness */}
-          <Card className="border-border bg-card rounded-none p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="font-bold text-lg flex items-center gap-2">
-                  <Package className="w-5 h-5 text-foreground" />
-                  Distillation Readiness
-                </h3>
-                <p className="text-xs text-muted-foreground font-mono mt-1">Criteria for Action Model</p>
-              </div>
-              <div className="text-right">
-                <span className="text-xs font-mono text-muted-foreground block">Projected Ready</span>
-                <span className="text-sm font-bold">{distillationReadiness.projectedReady}</span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 border border-border/50 bg-secondary/10">
-                <div className="flex items-center gap-3">
-                  {distillationReadiness.errorRate < 5 ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4 text-orange-500" />
-                  )}
-                  <span className="text-sm font-medium">Error Rate &lt; 5%</span>
-                </div>
-                <span className={cn("text-xs font-mono", distillationReadiness.errorRate < 5 ? "text-emerald-500" : "text-orange-500")}>
-                  {distillationReadiness.errorRate}%
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 border border-border/50 bg-secondary/10">
-                <div className="flex items-center gap-3">
-                  {distillationReadiness.daysStable >= 30 ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  ) : (
-                    <Clock className="w-4 h-4 text-orange-500" />
-                  )}
-                  <span className="text-sm font-medium">30+ Days Stable</span>
-                </div>
-                <span className={cn("text-xs font-mono", distillationReadiness.daysStable >= 30 ? "text-emerald-500" : "text-orange-500")}>
-                  {distillationReadiness.daysStable} days
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 border border-border/50 bg-secondary/10">
-                <div className="flex items-center gap-3">
-                  {distillationReadiness.executions >= 100 ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4 text-orange-500" />
-                  )}
-                  <span className="text-sm font-medium">100+ Executions</span>
-                </div>
-                <span className="text-xs font-mono text-emerald-500">
-                  {distillationReadiness.executions}
-                </span>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-border/50">
-                <Button className="w-full rounded-none" disabled={!distillationReadiness.readyForDistillation}>
-                  <Package className="w-4 h-4 mr-2" />
-                  {distillationReadiness.readyForDistillation ? 'Start Distillation' : 'Requirements Not Met'}
-                </Button>
-              </div>
-            </div>
-          </Card>
+          </div>
         </div>
+
+        {/* Hero Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-px bg-border border border-border">
+          {[
+            { label: 'Active Experiments', value: '12', icon: FlaskConical, color: 'text-cyan-500' },
+            { label: 'Global Improvement', value: '+18.4%', icon: TrendingUp, color: 'text-emerald-500' },
+            { label: 'Compute Usage', value: '42%', icon: Cpu, color: 'text-purple-500' },
+            { label: 'Agents Active', value: '4', icon: Bot, color: 'text-amber-500' },
+          ].map((stat, i) => (
+            <div key={i} className="bg-card p-6 flex items-center justify-between group hover:bg-accent/5 transition-colors">
+              <div>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                <h3 className="text-2xl font-bold font-mono mt-1">{stat.value}</h3>
+              </div>
+              <div className={cn("p-2 rounded-full bg-background border border-border/50", stat.color)}>
+                <stat.icon className="w-5 h-5" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Evolution Agents Grid */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Bot className="w-5 h-5 text-primary" />
+              Evolution Agents
+            </h2>
+            <Badge variant="outline" className="font-mono text-xs">
+              Managed by Supervisor Alpha
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {evolutionAgents.map((agent) => (
+              <Link key={agent.id} href={`/evolution/agents/${agent.id}`} className="block h-full">
+                <Card className="h-full border-border bg-card rounded-none overflow-hidden group hover:border-primary/50 transition-colors cursor-pointer relative">
+                  <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ArrowRight className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="p-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "w-8 h-8 rounded flex items-center justify-center border",
+                        agent.status === 'running' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
+                          agent.status === 'analyzing' ? "bg-blue-500/10 border-blue-500/20 text-blue-500" :
+                            "bg-muted border-border text-muted-foreground"
+                      )}>
+                        <Bot className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-sm font-medium">{agent.name}</CardTitle>
+                        <p className="text-[10px] font-mono text-muted-foreground">{agent.id}</p>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className={cn(
+                      "text-[10px] uppercase tracking-wider font-mono border-0",
+                      agent.status === 'running' ? "bg-emerald-500/10 text-emerald-500 animate-pulse" :
+                        agent.status === 'analyzing' ? "bg-blue-500/10 text-blue-500" :
+                          "bg-muted text-muted-foreground"
+                    )}>
+                      {agent.status}
+                    </Badge>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-2 space-y-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Current Task</p>
+                      <p className="text-sm font-medium truncate" title={agent.task}>{agent.task}</p>
+                      <p className="text-xs text-muted-foreground truncate">Target: {agent.target}</p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span>Progress</span>
+                        <span className="font-mono">{agent.progress}%</span>
+                      </div>
+                      <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden">
+                        <div
+                          className={cn("h-full transition-all duration-500",
+                            agent.status === 'running' ? "bg-emerald-500" :
+                              agent.status === 'analyzing' ? "bg-blue-500" : "bg-muted-foreground"
+                          )}
+                          style={{ width: `${agent.progress}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/50">
+                      {Object.entries(agent.metrics).map(([key, value]) => (
+                        <div key={key}>
+                          <p className="text-[10px] text-muted-foreground uppercase">{key}</p>
+                          <p className="text-xs font-mono font-medium">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Active Experiments & Queue */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Experiment List */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="border-border bg-card rounded-none">
+              <CardHeader className="border-b border-border py-3 px-4">
+                <CardTitle className="text-sm font-medium uppercase tracking-wider flex items-center gap-2">
+                  <FlaskConical className="w-4 h-4 text-primary" />
+                  Active Experiments
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y divide-border/50">
+                  {activeExperiments.map((exp) => (
+                    <Link key={exp.id} href={`/evolution/experiments/${exp.id}`} className="block hover:bg-muted/10 transition-colors">
+                      <div className="p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "p-2 rounded border",
+                            exp.type === 'A/B Test' ? "bg-purple-500/10 border-purple-500/20 text-purple-500" :
+                              exp.type === 'Shadow Run' ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-500" :
+                                "bg-blue-500/10 border-blue-500/20 text-blue-500"
+                          )}>
+                            {exp.type === 'A/B Test' ? <Split className="w-4 h-4" /> :
+                              exp.type === 'Shadow Run' ? <Clock className="w-4 h-4" /> :
+                                <Activity className="w-4 h-4" />}
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium">{exp.name}</h4>
+                            <p className="text-xs text-muted-foreground font-mono">{exp.id} • {exp.status}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-6 text-right">
+                          <div>
+                            <p className="text-[10px] text-muted-foreground uppercase">Uplift</p>
+                            <p className={cn("text-sm font-mono font-bold", exp.uplift.startsWith('+') ? "text-emerald-500" : "text-muted-foreground")}>
+                              {exp.uplift}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-muted-foreground uppercase">Confidence</p>
+                            <p className="text-sm font-mono">{exp.confidence}</p>
+                          </div>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <ArrowRight className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Global Metrics / Distillation Queue */}
+          <div className="space-y-6">
+            <Card className="border-border bg-card rounded-none p-6">
+              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">System Efficiency</h3>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-yellow-500" />
+                    <span className="text-sm">Token Savings</span>
+                  </div>
+                  <span className="font-mono font-bold text-emerald-500">-24%</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm">Latency Reduction</span>
+                  </div>
+                  <span className="font-mono font-bold text-emerald-500">-150ms</span>
+                </div>
+                <div className="pt-4 border-t border-border">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Evolution agents have autonomously optimized <span className="text-foreground font-medium">42 workflows</span> this week, resulting in significant cost and latency reductions.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+
       </main>
     </div>
   )

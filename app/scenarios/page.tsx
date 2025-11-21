@@ -309,7 +309,7 @@ export default function ScenarioTrainingPage() {
                   {scenarios.map((scenario) => (
                     <tr
                       key={scenario.id}
-                      onClick={() => router.push(`/scenario-training/${scenario.id}`)}
+                      onClick={() => router.push(`/scenarios/${scenario.id}`)}
                       className="group hover:bg-muted/20 transition-colors cursor-pointer"
                     >
                       <td className="p-4">

@@ -1,163 +1,77 @@
 'use client'
 
-import * as React from 'react'
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import {
-  Bot, Brain, Network, TrendingUp, Sparkles, Zap, Activity,
-  Plus, Trash2, Edit3, MessageSquare, Eye, CheckCircle2,
-  AlertCircle, Clock, ArrowRight, Target, BarChart3,
-  Terminal, GitCommit, GitPullRequest, ShieldAlert, BrainCircuit
+  LayoutDashboard,
+  GitBranch,
+  Shield,
+  Zap,
+  Bot,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  MoreHorizontal,
+  Plus,
+  ArrowRight,
+  Activity,
+  Search,
+  Filter,
+  Cpu,
+  Network,
+  FileText,
+  BrainCircuit
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 
-// Supervisor's recent autonomous decisions
-const autonomousDecisions = [
-  {
-    id: 1,
-    timestamp: '2 min ago',
-    type: 'agent_added',
-    decision: 'Created "Document Parser"',
-    reasoning: 'Detected 15 failed tasks due to unstructured PDF parsing. Created specialized parser agent.',
-    trigger: 'Performance Analysis',
-    impact: '+12% success',
-    confidence: 94,
-  },
-  {
-    id: 2,
-    timestamp: '18 min ago',
-    type: 'agent_modified',
-    decision: 'Updated "Email Sender" tone',
-    reasoning: 'Received feedback from 3 users that emails were too casual. Modified prompt.',
-    trigger: 'User Feedback',
-    impact: '+8% satisfaction',
-    confidence: 89,
-  },
-  {
-    id: 3,
-    timestamp: '1 hr ago',
-    type: 'workflow_optimized',
-    decision: 'Parallelized Tasks #4 and #5',
-    reasoning: 'Dependency analysis showed no blocking relationship. Restructured DAG.',
-    trigger: 'Optimization',
-    impact: '-40% duration',
-    confidence: 97,
-  },
-  {
-    id: 4,
-    timestamp: '3 hr ago',
-    type: 'agent_removed',
-    decision: 'Removed "Legacy Notifier"',
-    reasoning: 'Agent unused for 60+ consecutive executions. Functionality absorbed by "Notification Worker".',
-    trigger: 'Resource Opt',
-    impact: '-$0.03/exec',
-    confidence: 91,
-  },
-  {
-    id: 5,
-    timestamp: '5 hr ago',
-    type: 'scenario_learned',
-    decision: 'New scenario: "Duplicate App"',
-    reasoning: 'Detected pattern: 8 users submitted duplicate applications. Created deduplication logic.',
-    trigger: 'Pattern Detect',
-    impact: 'New Handler',
-    confidence: 88,
-  },
+// Mock Data for Supervisor
+const kanbanColumns = [
+  { id: 'monitoring', title: 'Monitoring', color: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
+  { id: 'optimizing', title: 'Optimizing', color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
+  { id: 'shadow_testing', title: 'Shadow Testing', color: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20' },
+  { id: 'ab_testing', title: 'A/B Testing', color: 'bg-purple-500/10 text-purple-500 border-purple-500/20' },
+  { id: 'distilling', title: 'Distilling', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
+  { id: 'deployed', title: 'Deployed', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
 ]
 
-// Active agents managed by Supervisor
-const managedAgents = [
-  {
-    id: 1,
-    name: 'Data Worker',
-    type: 'worker',
-    status: 'active',
-    createdBy: 'initial_setup',
-    tasksCompleted: 1247,
-    successRate: 96,
-    lastModified: 'Never',
-    cost: '$0.04',
-  },
-  {
-    id: 2,
-    name: 'API Worker',
-    type: 'worker',
-    status: 'active',
-    createdBy: 'initial_setup',
-    tasksCompleted: 892,
-    successRate: 94,
-    lastModified: '2d ago',
-    cost: '$0.05',
-  },
-  {
-    id: 3,
-    name: 'Document Parser',
-    type: 'worker',
-    status: 'active',
-    createdBy: 'supervisor_autonomous',
-    tasksCompleted: 45,
-    successRate: 91,
-    lastModified: '2m ago',
-    cost: '$0.06',
-    isNew: true,
-  },
-  {
-    id: 4,
-    name: 'Notification Worker',
-    type: 'worker',
-    status: 'active',
-    createdBy: 'initial_setup',
-    tasksCompleted: 1534,
-    successRate: 98,
-    lastModified: '1w ago',
-    cost: '$0.02',
-  },
+const initialTasks = [
+  { id: 't1', title: 'Customer Support Agent v2.1', type: 'Optimization', column: 'monitoring', priority: 'high', assignee: 'Supervisor Alpha' },
+  { id: 't2', title: 'Data Entry Bot - Edge Case #402', type: 'Fix', column: 'optimizing', priority: 'critical', assignee: 'Supervisor Alpha' },
+  { id: 't3', title: 'Email Outreach Flow B', type: 'Experiment', column: 'shadow_testing', priority: 'medium', assignee: 'Supervisor Beta' },
+  { id: 't4', title: 'Invoice Processor Lite', type: 'Distillation', column: 'distilling', priority: 'low', assignee: 'Supervisor Gamma' },
+  { id: 't5', title: 'Legal Reviewer v1.0', type: 'Deployment', column: 'deployed', priority: 'high', assignee: 'Supervisor Alpha' },
+  { id: 't6', title: 'Logistics Router', type: 'Optimization', column: 'monitoring', priority: 'medium', assignee: 'Supervisor Beta' },
+  { id: 't7', title: 'Search Agent v3.0', type: 'Experiment', column: 'ab_testing', priority: 'high', assignee: 'Supervisor Delta' },
 ]
 
-// Current feedback queue
-const feedbackQueue = [
-  {
-    id: 1,
-    from: 'Sarah Chen (HR)',
-    message: 'Welcome emails need handbook link',
-    status: 'analyzing',
-    priority: 'medium',
-    receivedAt: '5m ago',
-  },
-  {
-    id: 2,
-    from: 'Mike Rodriguez (Recruiter)',
-    message: 'Speed up background check process',
-    status: 'pending',
-    priority: 'high',
-    receivedAt: '12m ago',
-  },
-  {
-    id: 3,
-    from: 'System Monitor',
-    message: 'Task #127 failed 3x consecutively',
-    status: 'analyzing',
-    priority: 'high',
-    receivedAt: '8m ago',
-  },
+const liveFeed = [
+  { id: 1, time: 'Just now', message: 'Detected anomaly in "Data Entry Bot" performance. Initiating rollback.', type: 'alert' },
+  { id: 2, time: '2m ago', message: 'A/B Test "Email Outreach" reached statistical significance (95%). Promoting Variant B.', type: 'success' },
+  { id: 3, time: '5m ago', message: 'Distillation of "Invoice Processor" complete. Model size reduced by 40%.', type: 'info' },
+  { id: 4, time: '12m ago', message: 'New edge case encountered in "Customer Support". Spawning training scenario.', type: 'warning' },
+]
+
+// Mock Data for Decision Logs
+const decisionLogs = [
+  { id: 'DL-1024', time: '10:42:15', type: 'Intervention', agent: 'Customer Support v2', context: 'Hallucination detected in response draft', outcome: 'Blocked & Regenerated', confidence: 0.98 },
+  { id: 'DL-1023', time: '10:38:00', type: 'Optimization', agent: 'Sales Outreach Bot', context: 'Response rate dropped below threshold', outcome: 'Switched to Template B', confidence: 0.85 },
+  { id: 'DL-1022', time: '10:35:22', type: 'Allocation', agent: 'Data Scraper Swarm', context: 'High latency in region us-east-1', outcome: 'Scaled up 2 worker nodes', confidence: 0.92 },
+  { id: 'DL-1021', time: '10:30:10', type: 'Distillation', agent: 'Invoice Processor', context: 'Model size exceeded 2GB limit', outcome: 'Initiated quantization (fp16)', confidence: 0.99 },
+  { id: 'DL-1020', time: '10:15:45', type: 'Security', agent: 'Internal Query Bot', context: 'Attempted access to restricted DB', outcome: 'Access Denied & Flagged', confidence: 1.00 },
+  { id: 'DL-1019', time: '10:10:05', type: 'A/B Test', agent: 'Email Subject Gen', context: 'Variant A vs Variant B complete', outcome: 'Promoted Variant B (Win)', confidence: 0.96 },
 ]
 
 export default function SupervisorPage() {
   const { sidebarCollapsed } = useDashboardStore()
-
-  const getDecisionIcon = (type: string) => {
-    switch (type) {
-      case 'agent_added': return Plus
-      case 'agent_removed': return Trash2
-      case 'agent_modified': return Edit3
-      case 'workflow_optimized': return Zap
-      case 'scenario_learned': return Brain
-      default: return Activity
-    }
-  }
+  const [tasks, setTasks] = useState(initialTasks)
+  const [activeTab, setActiveTab] = useState("orchestration")
 
   return (
     <div
@@ -168,187 +82,244 @@ export default function SupervisorPage() {
       )}
     >
       <Header
-        title="Supervisor"
-        subtitle="Autonomous Control"
+        title="Supervisor Nexus"
+        subtitle="Orchestration & Evolution"
         breadcrumbs={[{ label: 'Supervisor' }]}
       />
 
       <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
 
-        {/* Supervisor Status Banner */}
-        <section className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          <Card className="lg:col-span-3 p-6 border-border bg-card rounded-none flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-              <BrainCircuit className="w-32 h-32" />
-            </div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-2">
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 rounded-none uppercase tracking-wider text-[10px]">
-                  <Activity className="w-3 h-3 mr-1 animate-pulse" />
-                  System Online
-                </Badge>
-                <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20 rounded-none uppercase tracking-wider text-[10px]">
-                  v3.2.1 Stable
-                </Badge>
-              </div>
-              <h1 className="text-3xl font-bold tracking-tight mb-2">Supervisor Agent</h1>
-              <p className="text-muted-foreground max-w-2xl">
-                Autonomous workflow orchestration engine. Currently monitoring {managedAgents.length} agents and optimizing execution paths.
-              </p>
-            </div>
-            <div className="grid grid-cols-4 gap-8 mt-8 relative z-10">
+        {/* Top Stats / HUD */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-px bg-border border border-border">
+          {[
+            { label: 'Active Optimizations', value: '12', icon: Zap, color: 'text-blue-500' },
+            { label: 'A/B Tests Running', value: '4', icon: GitBranch, color: 'text-purple-500' },
+            { label: 'Distillation Jobs', value: '2', icon: Cpu, color: 'text-amber-500' },
+            { label: 'System Health', value: '99.9%', icon: Activity, color: 'text-emerald-500' },
+          ].map((stat, i) => (
+            <div key={i} className="bg-card p-6 flex items-center justify-between group hover:bg-accent/5 transition-colors">
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Decisions (24h)</p>
-                <p className="text-2xl font-mono">247</p>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                <h3 className="text-2xl font-bold font-mono mt-1">{stat.value}</h3>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Confidence</p>
-                <p className="text-2xl font-mono text-emerald-500">92%</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Optimizations</p>
-                <p className="text-2xl font-mono text-blue-500">143</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Learning</p>
-                <p className="text-2xl font-mono text-purple-500">Active</p>
+              <div className={cn("p-2 rounded-full bg-background border border-border/50", stat.color)}>
+                <stat.icon className="w-5 h-5" />
               </div>
             </div>
-          </Card>
+          ))}
+        </div>
 
-          <Card className="p-0 border-border bg-card rounded-none flex flex-col">
-            <div className="p-4 border-b border-border bg-muted/30">
-              <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                <Target className="w-4 h-4" /> Current Focus
-              </h3>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <div className="flex items-center justify-between">
+            <TabsList className="bg-muted/20 border border-border p-1 rounded-none h-10">
+              <TabsTrigger
+                value="orchestration"
+                className="rounded-none data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-xs font-mono uppercase tracking-wider px-4"
+              >
+                <LayoutDashboard className="w-3 h-3 mr-2" />
+                Orchestration
+              </TabsTrigger>
+              <TabsTrigger
+                value="logs"
+                className="rounded-none data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-xs font-mono uppercase tracking-wider px-4"
+              >
+                <FileText className="w-3 h-3 mr-2" />
+                Decision Logs
+              </TabsTrigger>
+            </TabsList>
+
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="h-8">
+                <Filter className="w-3 h-3 mr-2" /> Filter
+              </Button>
+              <Button size="sm" className="h-8">
+                <Plus className="w-3 h-3 mr-2" /> New Directive
+              </Button>
             </div>
-            <div className="p-4 flex-1 flex flex-col justify-center gap-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Analyzing Feedback</span>
-                  <span className="text-emerald-500">89%</span>
-                </div>
-                <div className="h-1 bg-secondary w-full">
-                  <div className="h-full bg-emerald-500 w-[89%]" />
+          </div>
+
+          <TabsContent value="orchestration" className="m-0">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              {/* Main Kanban Board */}
+              <div className="lg:col-span-3 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 h-[600px]">
+                  {kanbanColumns.map(column => (
+                    <div key={column.id} className="flex flex-col h-full bg-muted/10 rounded-lg border border-border/50">
+                      <div className={cn("p-3 border-b border-border/50 flex items-center justify-between", column.color)}>
+                        <span className="text-xs font-mono font-bold uppercase tracking-wider">{column.title}</span>
+                        <Badge variant="secondary" className="text-[10px] h-5 px-1.5 bg-background/50 backdrop-blur-sm border-0">
+                          {tasks.filter(t => t.column === column.id).length}
+                        </Badge>
+                      </div>
+                      <div className="p-2 flex-1 overflow-y-auto space-y-2">
+                        {tasks.filter(t => t.column === column.id).map(task => (
+                          <motion.div
+                            key={task.id}
+                            layoutId={task.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-card border border-border p-3 rounded shadow-sm hover:border-primary/50 cursor-pointer group transition-colors"
+                          >
+                            <div className="flex justify-between items-start mb-2">
+                              <Badge variant="outline" className={cn(
+                                "text-[9px] uppercase tracking-wider rounded-none border-0 px-1.5",
+                                task.priority === 'critical' ? "bg-red-500/10 text-red-500" :
+                                  task.priority === 'high' ? "bg-orange-500/10 text-orange-500" :
+                                    "bg-blue-500/10 text-blue-500"
+                              )}>
+                                {task.priority}
+                              </Badge>
+                              <MoreHorizontal className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                            <h4 className="text-xs font-medium font-mono leading-tight mb-2">{task.title}</h4>
+                            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                              <Bot className="w-3 h-3" />
+                              <span className="truncate">{task.assignee}</span>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Processing feedback from Sarah Chen regarding email tone. Evaluating potential modifications to Email Worker prompt.
-              </p>
-            </div>
-          </Card>
-        </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Autonomous Decision Log */}
-          <section className="lg:col-span-2">
-            <Card className="border-border bg-card rounded-none overflow-hidden h-full">
-              <div className="p-4 border-b border-border bg-muted/30 flex justify-between items-center">
+              {/* Right Sidebar: Live Feed & Hierarchy */}
+              <div className="space-y-6">
+                {/* Live Feed */}
+                <Card className="border-border bg-card rounded-none h-[400px] flex flex-col">
+                  <CardHeader className="border-b border-border py-3 px-4 bg-muted/10">
+                    <CardTitle className="text-xs font-mono uppercase tracking-widest flex items-center gap-2">
+                      <Network className="w-4 h-4 text-primary" />
+                      Supervisor Log
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 flex-1 overflow-y-auto">
+                    <div className="divide-y divide-border/50">
+                      {liveFeed.map((log) => (
+                        <div key={log.id} className="p-3 hover:bg-muted/20 transition-colors">
+                          <div className="flex items-start gap-3">
+                            <div className={cn(
+                              "mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0",
+                              log.type === 'alert' ? "bg-red-500 animate-pulse" :
+                                log.type === 'success' ? "bg-emerald-500" :
+                                  log.type === 'warning' ? "bg-amber-500" : "bg-blue-500"
+                            )} />
+                            <div>
+                              <p className="text-[10px] font-mono text-muted-foreground mb-0.5">{log.time}</p>
+                              <p className="text-xs leading-snug">{log.message}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Hierarchy Mini-View */}
+                <Card className="border-border bg-card rounded-none">
+                  <CardHeader className="border-b border-border py-3 px-4 bg-muted/10">
+                    <CardTitle className="text-xs font-mono uppercase tracking-widest flex items-center gap-2">
+                      <Bot className="w-4 h-4 text-primary" />
+                      Agent Hierarchy
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="relative pl-2">
+                      <div className="absolute left-[11px] top-6 bottom-6 w-px bg-border" />
+                      <div className="flex items-center gap-3 mb-4 relative z-10">
+                        <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center border border-primary/50">
+                          <Bot className="w-3 h-3 text-primary" />
+                        </div>
+                        <span className="text-xs font-bold font-mono">Supervisor Alpha</span>
+                      </div>
+                      <div className="space-y-3 pl-6">
+                        {['Writer Unit', 'Research Unit', 'Reviewer Unit'].map((agent, i) => (
+                          <div key={i} className="flex items-center gap-3 relative">
+                            <div className="absolute -left-[13px] top-1/2 w-3 h-px bg-border" />
+                            <div className="w-5 h-5 rounded bg-muted flex items-center justify-center border border-border">
+                              <Bot className="w-2.5 h-2.5 text-muted-foreground" />
+                            </div>
+                            <span className="text-xs text-muted-foreground font-mono">{agent}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="logs" className="m-0">
+            <Card className="border-border bg-card rounded-none">
+              <div className="p-4 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Terminal className="h-4 w-4 text-muted-foreground" />
-                  <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">Decision Log</h2>
+                  <Search className="h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search decision logs..."
+                    className="h-8 w-[300px] bg-background border-border"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="rounded-none font-mono text-[10px]">Last 24 Hours</Badge>
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs font-mono">
-                  <thead className="bg-muted/20 text-muted-foreground border-b border-border">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-muted/30 border-b border-border text-xs uppercase font-mono text-muted-foreground">
                     <tr>
-                      <th className="p-4 font-medium uppercase tracking-wider">Time</th>
-                      <th className="p-4 font-medium uppercase tracking-wider">Type</th>
-                      <th className="p-4 font-medium uppercase tracking-wider">Action</th>
-                      <th className="p-4 font-medium uppercase tracking-wider">Reasoning</th>
-                      <th className="p-4 font-medium uppercase tracking-wider">Conf</th>
+                      <th className="p-4 font-medium">Log ID</th>
+                      <th className="p-4 font-medium">Time</th>
+                      <th className="p-4 font-medium">Decision Type</th>
+                      <th className="p-4 font-medium">Agent</th>
+                      <th className="p-4 font-medium">Context</th>
+                      <th className="p-4 font-medium">Outcome</th>
+                      <th className="p-4 font-medium text-right">Confidence</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/50">
-                    {autonomousDecisions.map((decision) => {
-                      const Icon = getDecisionIcon(decision.type)
-                      return (
-                        <tr key={decision.id} className="group hover:bg-muted/50 transition-colors">
-                          <td className="p-4 text-muted-foreground whitespace-nowrap">{decision.timestamp}</td>
-                          <td className="p-4">
-                            <span className="flex items-center gap-2 text-foreground">
-                              <Icon className="w-3 h-3 text-muted-foreground" />
-                              {decision.type.replace('_', ' ')}
-                            </span>
-                          </td>
-                          <td className="p-4 font-medium text-foreground">{decision.decision}</td>
-                          <td className="p-4 text-muted-foreground max-w-[300px] truncate" title={decision.reasoning}>
-                            {decision.reasoning}
-                          </td>
-                          <td className="p-4 text-emerald-500">{decision.confidence}%</td>
-                        </tr>
-                      )
-                    })}
+                    {decisionLogs.map((log) => (
+                      <tr key={log.id} className="group hover:bg-muted/20 transition-colors">
+                        <td className="p-4 font-mono text-xs text-muted-foreground">{log.id}</td>
+                        <td className="p-4 font-mono text-xs">{log.time}</td>
+                        <td className="p-4">
+                          <Badge variant="outline" className={cn(
+                            "rounded-none text-[10px] uppercase tracking-wider font-mono border-0",
+                            log.type === 'Intervention' ? "text-red-500 bg-red-500/10" :
+                              log.type === 'Optimization' ? "text-blue-500 bg-blue-500/10" :
+                                log.type === 'Security' ? "text-orange-500 bg-orange-500/10" :
+                                  log.type === 'A/B Test' ? "text-purple-500 bg-purple-500/10" :
+                                    "text-emerald-500 bg-emerald-500/10"
+                          )}>
+                            {log.type}
+                          </Badge>
+                        </td>
+                        <td className="p-4 text-xs">{log.agent}</td>
+                        <td className="p-4 text-xs text-muted-foreground max-w-[250px] truncate" title={log.context}>
+                          {log.context}
+                        </td>
+                        <td className="p-4 text-xs font-medium">{log.outcome}</td>
+                        <td className="p-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-primary"
+                                style={{ width: `${log.confidence * 100}%` }}
+                              />
+                            </div>
+                            <span className="font-mono text-xs">{(log.confidence * 100).toFixed(0)}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
             </Card>
-          </section>
+          </TabsContent>
+        </Tabs>
 
-          {/* Right Column: Feedback & Managed Agents */}
-          <section className="space-y-8">
-            {/* Feedback Queue */}
-            <Card className="border-border bg-card rounded-none overflow-hidden">
-              <div className="p-4 border-b border-border bg-muted/30 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                  <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">Feedback Queue</h2>
-                </div>
-                <Badge variant="secondary" className="rounded-none text-[10px]">{feedbackQueue.length} Pending</Badge>
-              </div>
-              <div className="divide-y divide-border/50">
-                {feedbackQueue.map((item) => (
-                  <div key={item.id} className="p-4 hover:bg-muted/50 transition-colors">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-medium text-foreground">{item.from}</span>
-                      <span className="text-[10px] text-muted-foreground">{item.receivedAt}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{item.message}</p>
-                    <div className="flex gap-2">
-                      <Badge variant="outline" className={cn(
-                        "rounded-none text-[10px] uppercase",
-                        item.priority === 'high' ? "text-red-500 border-red-500/20 bg-red-500/5" : "text-yellow-500 border-yellow-500/20 bg-yellow-500/5"
-                      )}>
-                        {item.priority}
-                      </Badge>
-                      <Badge variant="secondary" className="rounded-none text-[10px] uppercase">
-                        {item.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Managed Agents Compact List */}
-            <Card className="border-border bg-card rounded-none overflow-hidden">
-              <div className="p-4 border-b border-border bg-muted/30 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <Network className="h-4 w-4 text-muted-foreground" />
-                  <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">Managed Agents</h2>
-                </div>
-              </div>
-              <div className="divide-y divide-border/50">
-                {managedAgents.map((agent) => (
-                  <div key={agent.id} className="p-3 flex items-center justify-between hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                      <div>
-                        <p className="text-xs font-medium text-foreground">{agent.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{agent.type}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs font-mono text-foreground">{agent.successRate}%</p>
-                      <p className="text-[10px] text-muted-foreground">Success</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </section>
-        </div>
       </main>
     </div>
   )

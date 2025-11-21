@@ -234,8 +234,7 @@ export default function AgentRulesPage() {
             <div className="flex gap-2">
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-3 w-3 text-muted-foreground" />
-                <input
-                  type="text"
+                <Input
                   placeholder="Search policies..."
                   className="h-8 w-64 bg-background border border-border pl-8 pr-3 text-xs focus:outline-none focus:border-foreground transition-colors"
                 />
