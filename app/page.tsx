@@ -49,11 +49,12 @@ const performanceData = [
 ]
 
 const activeAgents = [
-  { name: 'Supervisor Alpha', status: 'active', load: 78, type: 'Orchestrator', task: 'Optimizing Route' },
-  { name: 'Research Unit-01', status: 'working', load: 92, type: 'Worker', task: 'Data Mining' },
-  { name: 'Writer Unit-04', status: 'idle', load: 5, type: 'Worker', task: 'Waiting for Input' },
-  { name: 'Reviewer Unit-02', status: 'active', load: 45, type: 'Worker', task: 'Validation Check' },
-  { name: 'Guardian Sentinel', status: 'active', load: 12, type: 'Security', task: 'Policy Enforcement' },
+  { name: 'Supervisor Agent', status: 'active', load: 68, type: 'Orchestrator', task: 'Managing TechFlow Support' },
+  { name: 'Ticket Classifier', status: 'working', load: 82, type: 'Worker', task: 'Categorizing Support Tickets' },
+  { name: 'Response Composer', status: 'active', load: 91, type: 'Worker', task: 'Drafting Customer Response' },
+  { name: 'Knowledge Retriever', status: 'active', load: 73, type: 'Worker', task: 'Searching Help Documentation' },
+  { name: 'Compliance Validator', status: 'active', load: 24, type: 'Security', task: 'Enforcing Business Rules' },
+  { name: 'Integration Helper', status: 'idle', load: 8, type: 'Worker', task: 'Standby for API Issues' },
 ]
 
 export default function DashboardPage() {
@@ -77,7 +78,7 @@ export default function DashboardPage() {
             { label: 'Active Workflows', value: activeWorkflowsCount, total: totalWorkflows, icon: Network, color: 'text-blue-500' },
             { label: 'Success Rate', value: `${avgSuccessRate}%`, trend: '+1.2%', icon: Activity, color: 'text-emerald-500' },
             { label: 'Total Executions', value: totalExecutions.toLocaleString(), trend: '+124', icon: Zap, color: 'text-amber-500' },
-            { label: 'Active Agents', value: '12', sub: '4 Idle', icon: Bot, color: 'text-purple-500' },
+            { label: 'Active Agents', value: '6', sub: '1 Idle', icon: Bot, color: 'text-purple-500' },
           ].map((metric, i) => (
             <motion.div
               key={metric.label}
