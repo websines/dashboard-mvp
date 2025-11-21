@@ -2,50 +2,58 @@
 
 import { Header } from '@/components/header'
 import { useDashboardStore } from '@/store/dashboard-store'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import {
-  Activity,
-  TrendingUp,
-  Zap,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  ArrowUpRight,
-  MoreHorizontal,
-  Layers,
-  Bot,
-  Cpu
+  Activity, TrendingUp, Zap, Clock, CheckCircle2, AlertCircle,
+  ArrowUpRight, MoreHorizontal, Layers, Bot, Cpu, Server,
+  Shield, Database, Terminal, PlayCircle, PauseCircle, StopCircle,
+  LayoutDashboard, GitBranch, Network
 } from 'lucide-react'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts'
 import { motion } from 'framer-motion'
+import { workflows, WorkflowTask } from './workflows/data'
 
-// Mock Data for "Award Winning" Charts
-const performanceData = [
-  { time: '00:00', success: 92, latency: 120 },
-  { time: '04:00', success: 94, latency: 115 },
-  { time: '08:00', success: 91, latency: 140 },
-  { time: '12:00', success: 98, latency: 95 },
-  { time: '16:00', success: 96, latency: 105 },
-  { time: '20:00', success: 95, latency: 110 },
-  { time: '24:00', success: 97, latency: 100 },
+// Aggregated Data Calculation
+const totalWorkflows = workflows.length
+const activeWorkflowsCount = workflows.filter(w => w.status === 'active').length
+const totalExecutions = workflows.reduce((acc, w) => acc + w.executions, 0)
+const avgSuccessRate = Math.round(workflows.reduce((acc, w) => acc + w.successRate, 0) / totalWorkflows)
+
+// Task Aggregation
+const allTasks = workflows.flatMap(w => w.tasks.map(t => ({ ...t, workflowName: w.name })))
+const tasksByStatus = {
+  backlog: allTasks.filter(t => t.column === 'backlog').length,
+  in_progress: allTasks.filter(t => t.column === 'in_progress').length,
+  review: allTasks.filter(t => t.column === 'review').length,
+  done: allTasks.filter(t => t.column === 'done').length,
+}
+
+const taskStatusData = [
+  { name: 'Backlog', value: tasksByStatus.backlog, color: '#64748b' }, // Slate 500
+  { name: 'In Progress', value: tasksByStatus.in_progress, color: '#3b82f6' }, // Blue 500
+  { name: 'Review', value: tasksByStatus.review, color: '#eab308' }, // Yellow 500
+  { name: 'Done', value: tasksByStatus.done, color: '#10b981' }, // Emerald 500
 ]
 
-const activityData = [
-  { day: 'Mon', tasks: 1450 },
-  { day: 'Tue', tasks: 2300 },
-  { day: 'Wed', tasks: 1800 },
-  { day: 'Thu', tasks: 2600 },
-  { day: 'Fri', tasks: 3100 },
-  { day: 'Sat', tasks: 1200 },
-  { day: 'Sun', tasks: 900 },
+// Mock Performance Data (Enhanced)
+const performanceData = [
+  { time: '00:00', success: 94, latency: 110, load: 45 },
+  { time: '04:00', success: 96, latency: 105, load: 30 },
+  { time: '08:00', success: 92, latency: 135, load: 75 },
+  { time: '12:00', success: 98, latency: 90, load: 85 },
+  { time: '16:00', success: 95, latency: 115, load: 60 },
+  { time: '20:00', success: 97, latency: 100, load: 40 },
+  { time: '24:00', success: 98, latency: 95, load: 35 },
 ]
 
 const activeAgents = [
-  { name: 'Supervisor Alpha', status: 'active', load: 45, type: 'Orchestrator' },
-  { name: 'Research Unit-01', status: 'working', load: 82, type: 'Worker' },
-  { name: 'Writer Unit-04', status: 'idle', load: 0, type: 'Worker' },
-  { name: 'Reviewer Unit-02', status: 'active', load: 23, type: 'Worker' },
+  { name: 'Supervisor Alpha', status: 'active', load: 78, type: 'Orchestrator', task: 'Optimizing Route' },
+  { name: 'Research Unit-01', status: 'working', load: 92, type: 'Worker', task: 'Data Mining' },
+  { name: 'Writer Unit-04', status: 'idle', load: 5, type: 'Worker', task: 'Waiting for Input' },
+  { name: 'Reviewer Unit-02', status: 'active', load: 45, type: 'Worker', task: 'Validation Check' },
+  { name: 'Guardian Sentinel', status: 'active', load: 12, type: 'Security', task: 'Policy Enforcement' },
 ]
 
 export default function DashboardPage() {
@@ -59,229 +67,324 @@ export default function DashboardPage() {
         sidebarCollapsed ? 'lg:ml-[70px]' : 'lg:ml-64'
       )}
     >
-      <Header title="Overview" subtitle="System Healthy" showDeployButton={true} />
+      <Header title="Overview" subtitle="System Status" showDeployButton={true} />
 
       <main className="mt-14 p-6 lg:p-8 max-w-[1920px] mx-auto space-y-8">
 
-        {/* Hero Metrics - "The Pulse" */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Hero Metrics - HUD Style */}
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border border border-border">
           {[
-            { label: 'Active Workflows', value: '124', trend: '+12%', icon: Activity, color: 'text-foreground' },
-            { label: 'Avg. Success Rate', value: '98.2%', trend: '+0.4%', icon: CheckCircle2, color: 'text-foreground' },
-            { label: 'System Latency', value: '104ms', trend: '-12ms', icon: Zap, color: 'text-foreground' },
-            { label: 'Cost Savings', value: '$14.2k', trend: 'This Month', icon: TrendingUp, color: 'text-foreground' },
+            { label: 'Active Workflows', value: activeWorkflowsCount, total: totalWorkflows, icon: Network, color: 'text-blue-500' },
+            { label: 'Success Rate', value: `${avgSuccessRate}%`, trend: '+1.2%', icon: Activity, color: 'text-emerald-500' },
+            { label: 'Total Executions', value: totalExecutions.toLocaleString(), trend: '+124', icon: Zap, color: 'text-amber-500' },
+            { label: 'Active Agents', value: '12', sub: '4 Idle', icon: Bot, color: 'text-purple-500' },
           ].map((metric, i) => (
             <motion.div
               key={metric.label}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
+              className="bg-card p-6 hover:bg-accent/5 transition-colors group relative overflow-hidden"
             >
-              <Card className="p-5 border-border bg-card hover:bg-secondary/50 transition-colors group rounded-none">
-                <div className="flex justify-between items-start mb-4">
-                  <div className={cn("p-2 bg-secondary text-foreground")}>
-                    <metric.icon className="h-4 w-4" />
-                  </div>
-                  <span className={cn("text-[10px] font-mono uppercase tracking-wider px-2 py-1 bg-secondary text-muted-foreground flex items-center gap-1")}>
-                    {metric.trend.startsWith('+') && <ArrowUpRight className="h-3 w-3" />}
+              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+              <div className="flex justify-between items-start mb-4">
+                <div className={cn("p-2 bg-background border border-border/50", metric.color)}>
+                  <metric.icon className="h-4 w-4" />
+                </div>
+                {metric.trend && (
+                  <span className={cn("text-[10px] font-mono font-bold px-2 py-1 bg-background border border-border/50 flex items-center gap-1", metric.color)}>
+                    <ArrowUpRight className="h-3 w-3" />
                     {metric.trend}
                   </span>
+                )}
+              </div>
+              <div>
+                <h3 className="text-3xl font-bold tracking-tight text-foreground font-mono">{metric.value}</h3>
+                <div className="flex items-center gap-2 mt-2">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">{metric.label}</p>
+                  {metric.total && <span className="text-[10px] text-muted-foreground font-mono">/ {metric.total}</span>}
                 </div>
-                <div>
-                  <h3 className="text-3xl font-medium tracking-tight text-foreground font-sans">{metric.value}</h3>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mt-2">{metric.label}</p>
-                </div>
-              </Card>
+              </div>
             </motion.div>
           ))}
         </section>
 
-        {/* Main Visualization Area */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[500px]">
+        {/* Main Content Grid */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* Chart: System Performance */}
-          <motion.div
-            className="lg:col-span-2 h-full"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="h-full p-6 border-border/50 bg-card/50 flex flex-col">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h2 className="text-lg font-semibold">System Performance</h2>
-                  <p className="text-sm text-muted-foreground">Real-time latency vs success rate</p>
-                </div>
-                <div className="flex gap-2">
-                  <button className="px-3 py-1 text-xs font-medium rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors">1H</button>
-                  <button className="px-3 py-1 text-xs font-medium rounded-md hover:bg-muted transition-colors text-muted-foreground">24H</button>
-                  <button className="px-3 py-1 text-xs font-medium rounded-md hover:bg-muted transition-colors text-muted-foreground">7D</button>
-                </div>
-              </div>
-              <div className="flex-1 w-full min-h-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={performanceData}>
-                    <defs>
-                      <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(150 100% 50%)" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="hsl(150 100% 50%)" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                    <XAxis
-                      dataKey="time"
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={false}
-                      dy={10}
-                      fontFamily="var(--font-mono)"
-                    />
-                    <YAxis
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={false}
-                      dx={-10}
-                      fontFamily="var(--font-mono)"
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        borderColor: 'hsl(var(--border))',
-                        borderRadius: '0px',
-                        boxShadow: 'none'
-                      }}
-                      itemStyle={{ color: 'hsl(var(--foreground))', fontFamily: 'var(--font-mono)', fontSize: '12px' }}
-                    />
-                    <Area
-                      type="step"
-                      dataKey="success"
-                      stroke="hsl(var(--foreground))"
-                      strokeWidth={1}
-                      fillOpacity={1}
-                      fill="url(#colorSuccess)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </motion.div>
+          {/* Left Column: Task Summary & Performance */}
+          <div className="lg:col-span-2 space-y-8">
 
-          {/* Agent Status List */}
-          <motion.div
-            className="lg:col-span-1 h-full"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="h-full p-0 border-border bg-card overflow-hidden flex flex-col rounded-none">
-              <div className="p-4 border-b border-border bg-muted/30">
-                <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                  <Bot className="h-3 w-3" />
-                  Active Processes
-                </h2>
-              </div>
-              <div className="flex-1 overflow-y-auto p-0">
-                <table className="w-full text-left text-xs font-mono">
-                  <thead className="bg-muted/20 text-muted-foreground sticky top-0">
-                    <tr>
-                      <th className="p-2 font-medium">ID</th>
-                      <th className="p-2 font-medium">STATUS</th>
-                      <th className="p-2 font-medium text-right">LOAD</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/50">
-                    {activeAgents.map((agent, i) => (
-                      <tr key={i} className="group hover:bg-muted/50 transition-colors">
-                        <td className="p-2 text-foreground">
-                          <span className="text-muted-foreground mr-1">./</span>{agent.name.toLowerCase().replace(' ', '_')}
-                        </td>
-                        <td className="p-2">
-                          <span className={cn(
-                            "px-1.5 py-0.5 rounded-sm text-[10px] uppercase",
-                            agent.status === 'active' ? "bg-emerald-500/10 text-emerald-500" :
-                              agent.status === 'working' ? "bg-blue-500/10 text-blue-500" : "bg-slate-500/10 text-slate-500"
-                          )}>
-                            {agent.status}
-                          </span>
-                        </td>
-                        <td className="p-2 text-right text-foreground">
-                          {agent.load}%
-                        </td>
-                      </tr>
-                    ))}
-                    {/* Fills */}
-                    {[...Array(5)].map((_, i) => (
-                      <tr key={`fill-${i}`} className="opacity-20">
-                        <td className="p-2 text-muted-foreground">--</td>
-                        <td className="p-2 text-muted-foreground">IDLE</td>
-                        <td className="p-2 text-right text-muted-foreground">0%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          </motion.div>
-        </section>
+            {/* Task Summary Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="border-border bg-card rounded-none">
+                <CardHeader className="border-b border-border py-4 px-6">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-mono uppercase tracking-widest flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-primary" />
+                      Global Task Matrix
+                    </CardTitle>
+                    <Badge variant="outline" className="rounded-none font-mono text-[10px]">
+                      {allTasks.length} TASKS
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    {/* Donut Chart */}
+                    <div className="h-[200px] relative">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={taskStatusData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={80}
+                            paddingAngle={2}
+                            dataKey="value"
+                            stroke="hsl(var(--background))"
+                            strokeWidth={2}
+                          >
+                            {taskStatusData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              borderColor: 'hsl(var(--border))',
+                              borderRadius: '0px',
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '12px',
+                              textTransform: 'uppercase'
+                            }}
+                            itemStyle={{ color: 'hsl(var(--foreground))' }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
+                        <span className="text-4xl font-bold font-mono tracking-tighter">{tasksByStatus.in_progress}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Active</span>
+                      </div>
+                    </div>
 
-        {/* Secondary Metrics Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Task Volume */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="p-6 border-border/50 bg-card/50">
-              <h3 className="text-sm font-medium text-muted-foreground mb-4">Task Volume (7D)</h3>
-              <div className="h-[150px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={activityData}>
-                    <Bar
-                      dataKey="tasks"
-                      fill="hsl(var(--primary))"
-                      radius={[4, 4, 0, 0]}
-                      opacity={0.8}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </motion.div>
-
-          {/* Recent Alerts */}
-          <motion.div
-            className="md:col-span-2"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card className="h-full p-6 border-border/50 bg-card/50">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-sm font-medium text-muted-foreground">System Alerts</h3>
-                <button className="text-xs text-primary hover:underline">Clear All</button>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { msg: "High latency detected in Research Unit-01", time: "2m ago", type: "warning" },
-                  { msg: "New scenario discovered: 'Candidate Ghosting'", time: "15m ago", type: "info" },
-                  { msg: "Supervisor auto-scaled worker pool (+2 nodes)", time: "1h ago", type: "success" }
-                ].map((alert, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 rounded-md bg-background/50 border border-border/50">
-                    {alert.type === 'warning' && <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5" />}
-                    {alert.type === 'info' && <Zap className="h-4 w-4 text-blue-500 mt-0.5" />}
-                    {alert.type === 'success' && <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5" />}
-                    <div className="flex-1">
-                      <p className="text-sm text-foreground">{alert.msg}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{alert.time}</p>
+                    {/* Legend / Stats */}
+                    <div className="space-y-5">
+                      {taskStatusData.map((item) => (
+                        <div key={item.name} className="flex items-center justify-between group">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2" style={{ backgroundColor: item.color }} />
+                            <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">{item.name}</span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="w-32 h-1 bg-secondary overflow-hidden">
+                              <div
+                                className="h-full transition-all duration-500"
+                                style={{ width: `${(item.value / allTasks.length) * 100}%`, backgroundColor: item.color }}
+                              />
+                            </div>
+                            <span className="text-xs font-mono font-bold w-8 text-right">{item.value}</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            </Card>
-          </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* System Performance Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <Card className="border-border bg-card rounded-none">
+                <CardHeader className="border-b border-border py-4 px-6">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-sm font-mono uppercase tracking-widest flex items-center gap-2">
+                      <Cpu className="h-4 w-4 text-primary" />
+                      System Load & Latency
+                    </CardTitle>
+                    <div className="flex gap-3">
+                      <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
+                        <div className="w-2 h-2 bg-primary" /> LOAD
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
+                        <div className="w-2 h-2 bg-violet-500" /> LATENCY
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="h-[250px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={performanceData}>
+                        <defs>
+                          <linearGradient id="colorLoad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
+                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                        <XAxis
+                          dataKey="time"
+                          stroke="hsl(var(--muted-foreground))"
+                          fontSize={10}
+                          tickLine={false}
+                          axisLine={false}
+                          dy={10}
+                          fontFamily="var(--font-mono)"
+                        />
+                        <YAxis
+                          stroke="hsl(var(--muted-foreground))"
+                          fontSize={10}
+                          tickLine={false}
+                          axisLine={false}
+                          dx={-10}
+                          fontFamily="var(--font-mono)"
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--card))',
+                            borderColor: 'hsl(var(--border))',
+                            borderRadius: '0px',
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: '12px',
+                            textTransform: 'uppercase'
+                          }}
+                          itemStyle={{ color: 'hsl(var(--foreground))' }}
+                        />
+                        <Area
+                          type="step"
+                          dataKey="load"
+                          stroke="hsl(var(--primary))"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorLoad)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="latency"
+                          stroke="#8b5cf6"
+                          strokeWidth={2}
+                          fillOpacity={0}
+                          strokeDasharray="4 4"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+          </div>
+
+          {/* Right Column: Active Agents & Recent Tasks */}
+          <div className="space-y-8">
+
+            {/* Active Agents List */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Card className="border-border bg-card rounded-none h-full flex flex-col">
+                <CardHeader className="border-b border-border py-4 px-5 bg-muted/10">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-mono uppercase tracking-widest flex items-center gap-2">
+                      <Bot className="h-4 w-4 text-primary" />
+                      Agent Status
+                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[10px] text-emerald-500 font-mono tracking-wider">ONLINE</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <div className="divide-y divide-border">
+                  {activeAgents.map((agent, i) => (
+                    <div key={i} className="p-4 hover:bg-muted/20 transition-colors group">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-sm font-medium group-hover:text-primary transition-colors font-mono">{agent.name}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{agent.type}</p>
+                        </div>
+                        <Badge variant="outline" className={cn(
+                          "text-[9px] uppercase rounded-none border-0",
+                          agent.status === 'active' ? "bg-emerald-500/10 text-emerald-500" :
+                            agent.status === 'working' ? "bg-blue-500/10 text-blue-500" : "bg-slate-500/10 text-slate-500"
+                        )}>
+                          {agent.status}
+                        </Badge>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-[9px] text-muted-foreground uppercase tracking-widest font-mono">
+                          <span>Current Task</span>
+                          <span>{agent.load}% Load</span>
+                        </div>
+                        <div className="text-xs font-mono bg-background border border-border p-2 truncate text-muted-foreground">
+                          {'>'} {agent.task}
+                        </div>
+                        <div className="h-0.5 w-full bg-secondary overflow-hidden">
+                          <div
+                            className={cn("h-full transition-all duration-1000",
+                              agent.load > 90 ? "bg-red-500" : agent.load > 70 ? "bg-amber-500" : "bg-emerald-500"
+                            )}
+                            style={{ width: `${agent.load}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* Recent Tasks Feed */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Card className="border-border bg-card rounded-none">
+                <CardHeader className="border-b border-border py-4 px-5 bg-muted/10">
+                  <h3 className="text-sm font-mono uppercase tracking-widest flex items-center gap-2">
+                    <Terminal className="h-4 w-4 text-primary" />
+                    Recent Activity
+                  </h3>
+                </CardHeader>
+                <div className="max-h-[300px] overflow-y-auto p-0">
+                  {allTasks.slice(0, 5).map((task, i) => (
+                    <div key={task.id} className="p-3 border-b border-border last:border-0 hover:bg-muted/20 transition-colors flex gap-3 items-start group">
+                      <div className={cn(
+                        "mt-1.5 w-1.5 h-1.5 rounded-none flex-shrink-0",
+                        task.column === 'done' ? "bg-emerald-500" :
+                          task.column === 'in_progress' ? "bg-blue-500" :
+                            task.column === 'review' ? "bg-amber-500" : "bg-slate-500"
+                      )} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium truncate font-mono group-hover:text-primary transition-colors">{task.title}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider truncate">{task.workflowName}</span>
+                          <span className="text-[10px] text-border">•</span>
+                          <span className="text-[10px] text-muted-foreground truncate">{task.assignee || 'Unassigned'}</span>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-mono text-muted-foreground whitespace-nowrap opacity-50 group-hover:opacity-100 transition-opacity">2m</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </motion.div>
+
+          </div>
         </section>
 
       </main>
