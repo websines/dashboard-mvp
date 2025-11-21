@@ -75,7 +75,7 @@ export default function DashboardPage() {
         {/* Hero Metrics - HUD Style */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border border border-border">
           {[
-            { label: 'Active Workflows', value: activeWorkflowsCount, total: totalWorkflows, icon: Network, color: 'text-blue-500' },
+            { label: 'TechFlow Workflow', value: 'v2.4', sub: '90 Days Live', icon: Network, color: 'text-blue-500' },
             { label: 'Success Rate', value: `${avgSuccessRate}%`, trend: '+1.2%', icon: Activity, color: 'text-emerald-500' },
             { label: 'Total Executions', value: totalExecutions.toLocaleString(), trend: '+124', icon: Zap, color: 'text-amber-500' },
             { label: 'Active Agents', value: '6', sub: '1 Idle', icon: Bot, color: 'text-purple-500' },
@@ -104,7 +104,8 @@ export default function DashboardPage() {
                 <h3 className="text-3xl font-bold tracking-tight text-foreground font-mono">{metric.value}</h3>
                 <div className="flex items-center gap-2 mt-2">
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">{metric.label}</p>
-                  {metric.total && <span className="text-[10px] text-muted-foreground font-mono">/ {metric.total}</span>}
+                  {('total' in metric) && <span className="text-[10px] text-muted-foreground font-mono">/ {(metric as any).total}</span>}
+                  {('sub' in metric) && <span className="text-[10px] text-muted-foreground font-mono">{(metric as any).sub}</span>}
                 </div>
               </div>
             </motion.div>
